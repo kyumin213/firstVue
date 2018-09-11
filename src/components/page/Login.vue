@@ -1,0 +1,130 @@
+<template>
+  <div class="login-wrap">
+    <div class="ms-title">后台管理系统</div>
+    <div class="ms-login">
+      <el-form :model="ruleForm" ref="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm">
+        <el-form-item prop="userAccountName" label="用户名">
+          <el-input v-model="ruleForm.userAccountName" placeholder="username"></el-input>
+        </el-form-item>
+        <el-form-item prop="userAccountPwd" label="密码">
+          <el-input type="password" placeholder="password" v-model="ruleForm.userAccountPwd"
+                    @keyup.enter.native="submitForm('ruleForm')"></el-input>
+        </el-form-item>
+        <div class="login-btn">
+          <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+        </div>
+        <!--<p style="font-size:12px;line-height:30px;color:#999;">Tips : 用户名和密码随便填。</p>-->
+      </el-form>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+export default {
+  data: function () {
+    return {
+      loginDatas: [],
+      ruleForm: {
+        userAccountName: '',
+        userAccountPwd: ''
+      },
+      rules: {
+        userAccountName: [
+          { required: true, message: '请输入用户名', trigger: 'blur' }
+        ],
+        userAccountPwd: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ]
+      }
+    }
+  },
+  methods: {
+    submitForm (formName) {
+      var _this = this
+      var loginData = {
+        userAccountName: _this.ruleForm.userAccountName,
+        userAccountPwd: _this.ruleForm.userAccountPwd
+      }
+      _this.axios.post('/api/login', loginData,
+        {
+          headers: {'Content-Type': 'application/json'}
+        }).then((res) => {
+        if (res.data.success === '200') {
+          _this.loginDatas = res.data.data
+          // _this.$message.success('登录成功')
+          let role = _this.loginDatas.userAccountToken
+          if (_this.loginDatas.userAccountInfo.storePkcode) {
+            sessionStorage.setItem('storePkcode', _this.loginDatas.userAccountInfo.storePkcode)
+            sessionStorage.setItem('storePkid', _this.loginDatas.userAccountInfo.storePkid)
+          } else if (_this.loginDatas.userAccountInfo.agentPkcode) {
+            sessionStorage.setItem('agentPkcode', _this.loginDatas.userAccountInfo.agentPkcode)
+            sessionStorage.setItem('agentPkid', _this.loginDatas.userAccountInfo.agentPkid)
+          }
+          sessionStorage.setItem('userName', _this.ruleForm.userAccountName)
+          sessionStorage.setItem('userPwd', _this.ruleForm.userAccountPwd)
+          sessionStorage.setItem('userPkcode', _this.loginDatas.userAccountPkcode)
+          sessionStorage.setItem('userAccountPkid', _this.loginDatas.userAccountPkid)
+          sessionStorage.setItem('token', role)
+          axios.defaults.headers.common['token'] = role
+          this.$router.push('/')
+        } else {
+          _this.$message.error(res.data.message)
+        }
+      }).catch((error) => {
+        console.log(error)
+        _this.$message.error('系统异常，登录失败')
+      })
+      // this.$refs[formName].validate((valid) => {
+      //   if (valid) {
+      //     localStorage.setItem('ms_username', this.ruleForm.username)
+      //     this.$router.push('/')
+      //   } else {
+      //     console.log('error submit!!')
+      //     return false
+      //   }
+      // })
+    }
+  }
+}
+</script>
+
+<style>
+  .login-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ms-title {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    margin-top: -230px;
+    text-align: center;
+    font-size: 30px;
+    color: #fff;
+
+  }
+
+  .ms-login {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 300px;
+    height: 160px;
+    margin: -150px 0 0 -190px;
+    padding: 40px;
+    border-radius: 5px;
+    background: #fff;
+  }
+
+  .login-btn {
+    text-align: center;
+  }
+
+  .login-btn button {
+    width: 100%;
+    height: 36px;
+  }
+</style>
