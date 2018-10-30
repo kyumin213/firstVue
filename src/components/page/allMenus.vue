@@ -30,7 +30,7 @@
     </el-table>
   </div>
   <!--新增-->
-  <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="40%">
+  <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="40%" :close-on-click-modal="false">
     <el-form ref="form" :model="form" label-width="100px">
       <el-form-item label="菜单名">
         <el-input v-model="form.userAuthMenuName"></el-input>
@@ -49,7 +49,7 @@
             </span>
   </el-dialog>
   <!--子菜单-->
-  <el-dialog title="新增子菜单" :visible.sync="addChildVisible" width="40%">
+  <el-dialog title="新增子菜单" :visible.sync="addChildVisible" width="40%" :close-on-click-modal="false">
     <el-form ref="form" :model="childForm" label-width="100px">
       <el-form-item label="菜单名">
         <el-input v-model="childForm.userAuthMenuName"></el-input>
@@ -161,7 +161,7 @@ export default {
     handleChildMenu () {
       var _this = this
       var childData = _this.childForm
-      axios.post('/api/sysOperate/saveAuth', childData,
+      axios.post(this.GLOBAL.BASE_URL + '/sysOperate/saveAuth', childData,
         {
           headers: {'Content-Type': 'application/json'}
         }).then((res) => {
@@ -176,14 +176,14 @@ export default {
     // 获取全部菜单列表
     getData () {
       var _this = this
-      axios.defaults.headers.common['token'] = localStorage.getItem('token')
-      axios.post('/api/sysOperate/findAllAuthList',
+      axios.defaults.headers.common['token'] = sessionStorage.getItem('token')
+      axios.post(this.GLOBAL.BASE_URL + '/sysOperate/findAllAuthList',
         {headers: {'Content-Type': 'application/json'}})
         .then((res) => {
           if (res.data.success === '200') {
             _this.menuData = res.data.data
           } else {
-            _this.$message.error(res.data.message)
+            _this.$message.error('无操作权限')
           }
         })
     },
@@ -197,13 +197,14 @@ export default {
       } else {
         _this.form.userAuthDisable = '0'
       }
-      axios.post('/api/sysOperate/saveAuth', menuData,
+      axios.post(this.GLOBAL.BASE_URL + '/sysOperate/saveAuth', menuData,
         {headers: {'Content-Type': 'application/json'}})
         .then((res) => {
           _this.menuData = res.data.data
           _this.addVisible = false
           _this.$message.success('添加成功')
           _this.getData()
+          location.reload()
         }).catch((error) => {
           console.log(error)
         })
@@ -213,7 +214,7 @@ export default {
       var _this = this
       var index = _this.idx
       var pkid = {userAuthPkid: _this.menuData[index].userAuthPkid}
-      axios.post('/api/sysOperate/deleteAuthById', pkid,
+      axios.post(this.GLOBAL.BASE_URL + '/sysOperate/deleteAuthById', pkid,
         {headers: {'Content-Type': 'application/json'}})
         .then((res) => {
           _this.menuData.splice(_this.idx, 1)
@@ -246,13 +247,14 @@ export default {
         userAuthMenuUrl: _this.form.userAuthMenuUrl,
         userAuthDisable: _this.form.userAuthDisable
       }
-      axios.post('/api/sysOperate/saveAuth', menuData,
+      axios.post(this.GLOBAL.BASE_URL + '/sysOperate/saveAuth', menuData,
         {headers: {'Content-Type': 'application/json'}})
         .then((res) => {
           _this.menuData = res.data.data
           _this.addVisible = false
           _this.$message.success('修改成功')
           _this.getData()
+          location.reload()
         }).catch((error) => {
           console.log(error)
         })
@@ -262,5 +264,9 @@ export default {
 </script>
 
 <style scoped>
-
+  .addBtn{
+    background-color: #d71718;
+    color: #fff;
+    margin-bottom: 20px;
+  }
 </style>

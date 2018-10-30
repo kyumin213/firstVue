@@ -10,8 +10,8 @@
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="fitnessCoursePkid" label="pkid" align="center"></el-table-column>
           <el-table-column prop="fitnessCourseName" label="课程名称" align="center"></el-table-column>
-          <el-table-column prop="fitnessCourseDisable" label="禁用" align="center" :formatter="disableTxt"></el-table-column>
           <el-table-column prop="fitnessCourseType" label="课程类型" align="center" :formatter="ifendcase"></el-table-column>
+          <el-table-column prop="fitnessCourseDisable" label="是否禁用" align="center" :formatter="disableTxt"></el-table-column>
           <el-table-column label="操作" align="center" width="250">
             <template slot-scope="scope">
               <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -22,30 +22,34 @@
               <el-button size="small" type="primary" v-else-if="scope.row.fitnessCourseDisable===0"
                          @click="disableStoreShow(scope.$index, scope.row)">启用
               </el-button>
+              <el-button size="small" style="margin-top: 10px" type="primary" v-if="scope.row.fitnessCourseDisable===1"
+                         @click="addCourseShow(scope.$index, scope.row)">新增课程内容</el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
       <!--新增-->
-      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%">
-        <el-form :model="form" label-width="80px">
-          <el-form-item label="课程名称">
-            <el-input v-model="form.fitnessCourseName"></el-input>
+      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
+        <el-form :model="form" label-width="80px" :rules="rules" class="demo-ruleForm" status-icon>
+          <el-form-item label="课程名称" prop="fitnessCourseName">
+            <el-input v-model="form.fitnessCourseName" style="width: 75%"></el-input>
           </el-form-item>
-          <el-form-item label="课程类型">
-            <el-select v-model="form.fitnessCourseType" placeholder="请选择">
-              <el-option v-for="item in options" :key="item.value" :value="item.value" :label="item.label"></el-option>
-            </el-select>
+          <el-form-item label="课程类型" prop="fitnessCourseType">
+            <el-radio-group v-model="form.fitnessCourseType" size="medium">
+              <el-radio-button label="1">团操</el-radio-button>
+              <el-radio-button label="2">私教</el-radio-button>
+            </el-radio-group>
           </el-form-item>
-          <el-form-item label="是否禁用">
-            <el-select v-model="form.fitnessCourseDisable" placeholder="请选择">
-              <el-option v-for="item in disStatus" :key="item.value" :value="item.value" :label="item.label"></el-option>
-            </el-select>
-          </el-form-item>
+          <!--<el-form-item label="是否禁用" v-if="!editVisible">-->
+            <!--<el-radio-group v-model="form.fitnessCourseDisable" size="medium">-->
+              <!--<el-radio-button label="1">正常</el-radio-button>-->
+              <!--<el-radio-button label="0">禁用</el-radio-button>-->
+            <!--</el-radio-group>-->
+          <!--</el-form-item>-->
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="addVisible=false">取消</el-button>
-          <el-button type="primary" @click="addCard" v-if="!editVisible">确定</el-button>
+          <el-button type="primary" @click="addCard(form)" v-if="!editVisible">确定</el-button>
           <el-button type="primary" @click="editCard" v-else>确定</el-button>
         </span>
       </el-dialog>
@@ -65,54 +69,121 @@
         <el-button type="primary" @click="disableStore">确定</el-button>
       </span>
       </el-dialog>
+      <!--课程内容-->
+      <el-dialog title="新增课程内容" :visible.sync="addCourseModel" width="30%" :close-on-click-modal="false">
+        <el-form :model="addCourse" ref="addCourse" label-width="80px" :rules="conRules" class="demo-ruleForm" status-icon>
+          <el-form-item label="上传封面" prop="TopimgUrl">
+            <img v-if="addCourse.TopimgUrl" :src="addCourse.TopimgUrl" class="topImg">
+            <input class="file" name="file" type="file" accept="image/png,image/gif,image/jpeg,image/jpg" @change="topImgUpload"/>
+          </el-form-item>
+          <el-form-item label="课程介绍" prop="fitnessCourseintroduce">
+            <el-input type="textarea" v-model="addCourse.fitnessCourseintroduce"></el-input>
+          </el-form-item>
+          <el-form-item label="训练效果" prop="trainingEffect">
+            <el-input type="textarea" v-model="addCourse.trainingEffect"></el-input>
+          </el-form-item>
+          <el-form-item label="适宜人群" prop="SuitablePopulation">
+            <el-input type="textarea" v-model="addCourse.SuitablePopulation"></el-input>
+          </el-form-item>
+          <el-form-item label="温馨提示">
+            <!--<el-input type="textarea" v-model="addCourse.Reminder"></el-input>-->
+          </el-form-item>
+          <div v-for="(item, index) in ReminderList" :key="item.key">
+            <el-form-item label="提示" >
+              <!--<el-input type="textarea" v-model="information.goodCourse"></el-input>-->
+              <!--<el-col :span="2"> <span>课程</span></el-col>-->
+              <el-col :span="2"> <span>{{index+1}}</span></el-col>
+              <el-col :span="16"><el-input type="text" v-model="item.text"></el-input></el-col>
+              <el-button type="danger" size="small" style="margin-left: 5px" @click="removeRowGoods(item, index)">删除</el-button>
+            </el-form-item>
+          </div>
+          <el-form-item>
+            <el-button type="primary" size="small" @click="addGoods()">新增提示</el-button>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="addCourse=false">取消</el-button>
+          <el-button type="primary" @click="addCourseCon('addCourse')">确定</el-button>
+        </span>
+      </el-dialog>
     </div>
 </template>
 
 <script>
+import vali from '../common/validate'
 export default {
   name: 'courseList',
   data () {
     return {
+      ReminderList: [
+        {text: '', type: 'text'}
+      ],
       courseData: [],
       multipleSelection: [],
+      courseConData: [],
+      conTxt: {},
       idx: -1,
       addVisible: false,
       editVisible: false,
       delVisible: false,
       disableVisible: false,
+      addCourseModel: false,
       dailogTitleType: '',
       message: '',
       form: {
         fitnessCourseName: '',
-        fitnessCourseType: '',
-        fitnessCourseDisable: ''
+        fitnessCourseType: '1',
+        fitnessCourseDisable: '1'
       },
-      options: [
-        {
-          value: 1,
-          label: '团操'
-        },
-        {
-          value: 2,
-          label: '私教'
-        }
-      ],
-      disStatus: [
-        {
-          value: 0,
-          label: '禁用'
-        },
-        {
-          value: 1,
-          label: '正常'
-        }
-      ]
+      addCourse: {
+        fitnessCourseintroduce: '',
+        trainingEffect: '',
+        SuitablePopulation: '',
+        // Reminder: '',
+        TopimgUrl: ''
+      },
+      rules: {
+        fitnessCourseName: [
+          {required: true, message: '请输入课程名称', trigger: 'change'},
+          {validator: vali.courseNameNum, trigger: 'change'}
+        ]
+      },
+      conRules: {
+        fitnessCourseintroduce: [
+          {required: true, message: '请输入课程介绍', trigger: 'change'}
+        ],
+        trainingEffect: [
+          {required: true, message: '请输入训练效果', trigger: 'change'}
+        ],
+        SuitablePopulation: [
+          {required: true, message: '请输入适宜人群', trigger: 'change'}
+        ],
+        Reminder: [
+          {required: true, message: '请输入温馨提示', trigger: 'change'}
+        ],
+        TopimgUrl: [
+          {required: true, message: '请上传课程封面', trigger: 'change'}
+        ]
+      }
     }
   },
   created () {
     this.getData()
   },
   methods: {
+    filterTag (value, row) {
+      return row.fitnessCourseType === value
+    },
+    addGoods () {
+      this.ReminderList.push({ text: this.form.length, type: 'text' })
+    },
+    removeRowGoods (item, index) {
+      // this.goodCourse.splice(index, 1)
+      this.index = this.ReminderList.indexOf(item)
+      if (index !== -1) {
+        this.ReminderList.splice(index, 1)
+      }
+    },
     handleSelectionChange (val) {
       this.multipleSelection = val
     },
@@ -132,19 +203,42 @@ export default {
     getData () {
       let _this = this
       let agentPkid = sessionStorage.getItem('agentPkid')
-      let pkid = {agentPkid: agentPkid}
-      _this.axios.post('/api/agentOfFitnessCourseOperate/findFitnessCourseByAgentPkid', pkid, {
+      let pkid = {agentPkid: parseInt(agentPkid)}
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfFitnessCourseOperate/findFitnessCourseByAgentPkid', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
           _this.courseData = res.data.data
         } else {
-          _this.$message.error('没有操作权限')
+          _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)
         _this.$message.error('系统故障')
       })
+    },
+    // 上传封面
+    topImgUpload (e) {
+      let _this = this
+      let file = e.target.files[0]
+      let names = file.name
+      var ext = names.lastIndexOf('.')
+      let fileTpyes = names.substring(ext + 1)
+      let param = new FormData() // 创建form对象
+      param.append('file', file)// 通过append向form对象添加数据
+      param.append('fileType', fileTpyes)// 添加form表单中其他数据
+      let config = {
+        headers: {'Content-Type': 'multipart/form-data'}
+      } // 添加请求头
+      this.axios.post(this.GLOBAL.BASE_URL + '/uploadFile/uploadimg', param, config)
+        .then(res => {
+          if (res.data.success === '200') {
+            _this.addCourse.TopimgUrl = res.data.data
+            // console.log(res)
+          } else {
+            _this.$message.error(res.data.message)
+          }
+        })
     },
     // 添加弹窗
     addModelOpen () {
@@ -152,6 +246,45 @@ export default {
       _this.addVisible = true
       _this.editVisible = false
       _this.dailogTitleType = '添加'
+    },
+    // 新增课程内容弹窗
+    addCourseShow (index, row) {
+      let _this = this
+      _this.idx = index
+      _this.addCourseModel = true
+      const item = _this.courseData[index]
+      // let courseTxt = item.fitnessCourseContext
+      // if (courseTxt !== null || courseTxt !== '' || courseTxt !== undefined) {
+      //   let dataType = item.fitnessCourseContext
+      //   var con = null
+      //   if (typeof (dataType) === 'object') {
+      //     con = dataType
+      //   } else {
+      //     con = JSON.parse(dataType.replace(/\n/g, '').replace(/\r/g, ''))
+      //   }
+      //   _this.conTxt = con
+      //   _this.ReminderList = _this.conTxt.Reminder
+      // }
+      if (item.fitnessCourseContext === '' || item.fitnessCourseContext === 'undefined' || item.fitnessCourseContext === null) {
+        _this.ReminderList = [{text: '', type: 'text'}]
+      } else {
+        let dataType = item.fitnessCourseContext
+        let con = null
+        if (typeof (dataType) === 'object') {
+          con = dataType
+        } else {
+          con = JSON.parse(dataType.replace(/\n/g, '').replace(/\r/g, ''))
+        }
+        _this.conTxt = con
+        _this.ReminderList = _this.conTxt.Reminder
+      }
+      _this.addCourse = {
+        fitnessCourseintroduce: _this.conTxt.fitnessCourseintroduce,
+        trainingEffect: _this.conTxt.trainingEffect,
+        SuitablePopulation: _this.conTxt.SuitablePopulation,
+        // Reminder: '',
+        TopimgUrl: item.fitnessCourseCoverimg
+      }
     },
     // 编辑弹窗
     handleEdit (index, row) {
@@ -180,39 +313,44 @@ export default {
       let pkid = item.fitnessCoursePkid
       _this.fitnessCoursePkid = pkid
       if (agentDis === 1) {
-        _this.message = '是否禁用该商户？'
+        _this.message = '是否禁用该课程？'
         _this.fitnessCourseDisable = 0
       } else {
-        _this.message = '是否启用该商户？'
+        _this.message = '是否启用该课程？'
         _this.fitnessCourseDisable = 1
       }
       this.disableVisible = true
     },
     //  添加
-    addCard () {
+    addCard (formName) {
       let agentPkid = sessionStorage.getItem('agentPkid')
       let agentPkCode = sessionStorage.getItem('agentPkcode')
       let _this = this
       let formData = {
         fitnessCourseName: _this.form.fitnessCourseName,
-        fitnessCourseType: _this.form.fitnessCourseType,
-        fitnessCourseDisable: _this.form.fitnessCourseDisable,
-        agentPkid: agentPkid,
+        fitnessCourseType: parseInt(_this.form.fitnessCourseType),
+        // fitnessCourseDisable: parseInt(_this.form.fitnessCourseDisable),
+        agentPkid: parseInt(agentPkid),
         agentPkcode: agentPkCode
       }
-      _this.axios.post('/api/agentOfFitnessCourseOperate/addFitnessCourse', formData, {
-        headers: {'Content-Type': 'application/json'}
-      }).then((res) => {
-        if (res.data.success === '200') {
-          _this.courseData = res.data.data
-          _this.$message.success('添加成功')
-          _this.getData()
-          _this.addVisible = false
-        } else {
-          _this.$message.error(res.data.message)
+      _this.$refs[formName].validate((valid) => {
+        if (valid) {
+          _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfFitnessCourseOperate/addFitnessCourse', formData, {
+            headers: {'Content-Type': 'application/json'}
+          }).then((res) => {
+            if (res.data.success === '200') {
+              _this.courseData = res.data.data
+              _this.$message.success('添加成功')
+              // _this.getData()
+              _this.addVisible = false
+              location.reload()
+            } else {
+              _this.$message.error(res.data.message)
+            }
+          }).catch((error) => {
+            console.log(error)
+          })
         }
-      }).catch((error) => {
-        console.log(error)
       })
     },
     //  编辑
@@ -221,19 +359,19 @@ export default {
       let index = _this.idx
       const item = _this.courseData[index]
       let editData = {
-        fitnessCoursePkid: item.fitnessCoursePkid,
+        fitnessCoursePkid: parseInt(item.fitnessCoursePkid),
         fitnessCourseName: _this.form.fitnessCourseName,
-        fitnessCourseType: _this.form.fitnessCourseType,
-        fitnessCourseDisable: _this.form.fitnessCourseDisable
+        fitnessCourseType: parseInt(_this.form.fitnessCourseType)
       }
-      _this.axios.post('/api/agentOfFitnessCourseOperate/updateFitnessCourse', editData, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfFitnessCourseOperate/updateFitnessCourse', editData, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
           _this.courseData = res.data.data
           _this.$message.success('修改成功')
           _this.addVisible = false
-          _this.getData()
+          // _this.getData()
+          location.reload()
         } else {
           _this.$message.error(res.data.message)
         }
@@ -246,7 +384,7 @@ export default {
       let _this = this
       let index = _this.idx
       var pkid = {fitnessCoursePkid: _this.courseData[index].fitnessCoursePkid}
-      _this.axios.post('/api/agentOfFitnessCourseOperate/deleteFitnessCourseById', pkid, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfFitnessCourseOperate/deleteFitnessCourseById', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
@@ -268,7 +406,7 @@ export default {
         fitnessCoursePkid: _this.fitnessCoursePkid,
         fitnessCourseDisable: _this.fitnessCourseDisable
       }
-      _this.axios.post('/api/agentOfFitnessCourseOperate/disableFitnessCourseById', disableData, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfFitnessCourseOperate/disableFitnessCourseById', disableData, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
@@ -282,11 +420,60 @@ export default {
       }).catch((error) => {
         console.log(error)
       })
+    },
+    //  保存课程内容
+    addCourseCon (formName) {
+      let _this = this
+      let index = _this.idx
+      let pkid = _this.courseData[index].fitnessCoursePkid
+      // let conText = _this.addCourse.fitnessCourseContext
+      // let introduce = _this.addCourse.fitnessCourseintroduce
+      // let duce = introduce.replace(/<\/?.+?>/g,"")
+      // let duce = introduce.replace(/[\r\n]/g, "")
+      let courseLists = {
+        fitnessCourseintroduce: _this.addCourse.fitnessCourseintroduce,
+        trainingEffect: _this.addCourse.trainingEffect,
+        SuitablePopulation: _this.addCourse.SuitablePopulation,
+        Reminder: _this.ReminderList
+      }
+      let courseData = {
+        fitnessCourseContext: courseLists,
+        fitnessCoursePkid: pkid,
+        fitnessCourseCoverimg: _this.addCourse.TopimgUrl
+      }
+      _this.$refs[formName].validate((valid) => {
+        if (valid) {
+          _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfFitnessCourseOperate/saveFitnessCourseContext', courseData, {
+            headers: {'Content-Type': 'application/json'}
+          }).then((res) => {
+            if (res.data.success === '200') {
+              _this.courseConData = res.data.data
+              _this.$message.success('操作成功')
+              _this.addCourseModel = false
+              _this.getData()
+              location.reload()
+            } else {
+              _this.$message.error(res.data.message)
+            }
+          }).catch((error) => {
+            console.log(error)
+          })
+        }
+      })
     }
   }
 }
 </script>
 
 <style scoped>
-
+  .addBtn{
+    background-color: #d71718;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .topImg{
+    width: 300px;
+    height: 170px;
+    display: block;
+  }
 </style>

@@ -6,103 +6,96 @@
           <el-col>
             <el-card shadow="hover" class="mgb20">
               <div class="user-info">
-                <img src="static/img/img.jpg" class="user-avator" alt="">
+                <!--<img src="static/img/img.jpg" class="user-avator" alt="">-->
                 <div class="user-info-cont">
                   <div class="user-info-name">{{name}}</div>
                   <div>{{role}}</div>
                 </div>
               </div>
-              <div class="user-info-list">上次登录时间：<span>2018-01-01</span></div>
-              <div class="user-info-list">上次登录地点：<span>东莞</span></div>
+              <div class="user-info-list">上次登录时间：<span>2018-10-19</span></div>
+              <div class="user-info-list">上次登录地点：<span>深圳</span></div>
             </el-card>
             <el-card shadow="hover">
-              <div slot="header" class="clearfix">
-                <span>语言详情</span>
+              <el-row :gutter="20" class="mgb20">
+              <el-col :span="8">
+              <el-card shadow="hover" :body-style="{padding: '0px'}">
+              <div class="grid-content grid-con-1">
+              <i class="el-icon-view grid-con-icon"></i>
+              <div class="grid-cont-right">
+              <div class="grid-num">0</div>
+              <div style="width: 80px">用户访问量</div>
               </div>
-              Vue
-              <el-progress :percentage="57.2" color="#42b983"></el-progress>
-              JavaScript
-              <el-progress :percentage="29.8" color="#f1e05a"></el-progress>
-              CSS
-              <el-progress :percentage="11.9"></el-progress>
-              HTML
-              <el-progress :percentage="1.1" color="#f56c6c"></el-progress>
+              </div>
+              </el-card>
+              </el-col>
+              <el-col :span="8">
+              <el-card shadow="hover" :body-style="{padding: '0px'}">
+              <div class="grid-content grid-con-2">
+              <i class="el-icon-message grid-con-icon"></i>
+              <div class="grid-cont-right">
+              <div class="grid-num">0</div>
+              <div style="width: 80px">系统消息</div>
+              </div>
+              </div>
+              </el-card>
+              </el-col>
+              <el-col :span="8">
+              <el-card shadow="hover" :body-style="{padding: '0px'}">
+              <div class="grid-content grid-con-3">
+              <i class="el-icon-goods grid-con-icon"></i>
+              <div class="grid-cont-right">
+              <div class="grid-num">0</div>
+              <div style="width: 80px">数量</div>
+              </div>
+              </div>
+              </el-card>
+              </el-col>
+              </el-row>
             </el-card>
           </el-col>
         </el-row>
       </el-col>
       <el-col :span="16">
-        <el-row :gutter="20" class="mgb20">
-          <el-col :span="8">
-            <el-card shadow="hover" :body-style="{padding: '0px'}">
-              <div class="grid-content grid-con-1">
-                <i class="el-icon-view grid-con-icon"></i>
-                <div class="grid-cont-right">
-                  <div class="grid-num">1234</div>
-                  <div>用户访问量</div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" :body-style="{padding: '0px'}">
-              <div class="grid-content grid-con-2">
-                <i class="el-icon-message grid-con-icon"></i>
-                <div class="grid-cont-right">
-                  <div class="grid-num">321</div>
-                  <div>系统消息</div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" :body-style="{padding: '0px'}">
-              <div class="grid-content grid-con-3">
-                <i class="el-icon-goods grid-con-icon"></i>
-                <div class="grid-cont-right">
-                  <div class="grid-num">5000</div>
-                  <div>数量</div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
-        <el-card shadow="hover" :body-style="{ height: '304px'}">
-          <div slot="header" class="clearfix">
-            <span>待办事项</span>
-            <el-button style="float: right; padding: 3px 0" type="text">添加</el-button>
-          </div>
-          <el-table :data="todoList" :show-header="false" height="304" style="width: 100%;font-size:14px;">
-            <el-table-column width="40">
-              <template slot-scope="scope">
-                <el-checkbox v-model="scope.row.status"></el-checkbox>
-              </template>
-            </el-table-column>
-            <el-table-column>
-              <template slot-scope="scope">
-                <div class="todo-item" :class="{'todo-item-del': scope.row.status}">{{scope.row.title}}</div>
-              </template>
-            </el-table-column>
-            <el-table-column width="60">
-              <template slot-scope="scope">
-                <i class="el-icon-edit"></i>
-                <i class="el-icon-delete"></i>
-              </template>
-            </el-table-column>
-          </el-table>
+        <el-card shadow="hover" :body-style="{ height: '100%'}">
+          <div>内容完善中</div>
+          <!--<dataShow></dataShow>-->
+          <!--<div slot="header" class="clearfix">-->
+            <!--<span>待办事项</span>-->
+            <!--<el-button style="float: right; padding: 3px 0" type="text">添加</el-button>-->
+          <!--</div>-->
+          <!--<el-table :data="todoList" :show-header="false" height="304" style="width: 100%;font-size:14px;">-->
+            <!--<el-table-column width="40">-->
+              <!--<template slot-scope="scope">-->
+                <!--<el-checkbox v-model="scope.row.status"></el-checkbox>-->
+              <!--</template>-->
+            <!--</el-table-column>-->
+            <!--<el-table-column>-->
+              <!--<template slot-scope="scope">-->
+                <!--<div class="todo-item" :class="{'todo-item-del': scope.row.status}">{{scope.row.title}}</div>-->
+              <!--</template>-->
+            <!--</el-table-column>-->
+            <!--<el-table-column width="60">-->
+              <!--<template slot-scope="scope">-->
+                <!--<i class="el-icon-edit"></i>-->
+                <!--<i class="el-icon-delete"></i>-->
+              <!--</template>-->
+            <!--</el-table-column>-->
+          <!--</el-table>-->
         </el-card>
-
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
+import dataShow from './dataShow.vue'
+import bus from '../common/bus'
 export default {
   name: 'dashboard',
   data () {
     return {
-      name: localStorage.getItem('ms_username'),
+      name: sessionStorage.getItem('userName'),
+      collapse: false,
       todoList: [
         {
           title: '今天要修复100个bug',
@@ -123,10 +116,18 @@ export default {
       ]
     }
   },
+  components: {
+    dataShow
+  },
   computed: {
     role () {
       return this.name === 'admin' ? '超级管理员' : '普通用户'
     }
+  },
+  created () {
+    bus.$on('collapse', msg => {
+      this.collapse = msg
+    })
   }
 }
 
@@ -236,5 +237,10 @@ export default {
     text-decoration: line-through;
     color: #999;
   }
-
+  .isRed {
+    display: inline-block;
+    height: 100px;
+    width: 100%;
+    color: red;
+  }
 </style>

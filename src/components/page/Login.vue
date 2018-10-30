@@ -46,20 +46,34 @@ export default {
         userAccountName: _this.ruleForm.userAccountName,
         userAccountPwd: _this.ruleForm.userAccountPwd
       }
-      _this.axios.post('/api/login', loginData,
+      // $.ajax({
+      //   url: 'http://www.linkgooo.com:8085/tv/show',
+      //   type: 'GET',
+      //   jsonpCallback: 'callback',
+      //   dataType: 'JSONP',
+      //   data: {
+      //     pagenum: 1
+      //   },
+      //   success: function (res) {
+      //     console.log(res.data)
+      //   }
+      // })
+
+      _this.axios.post(this.GLOBAL.BASE_URL + '/login', loginData,
         {
           headers: {'Content-Type': 'application/json'}
         }).then((res) => {
         if (res.data.success === '200') {
           _this.loginDatas = res.data.data
-          // _this.$message.success('登录成功')
           let role = _this.loginDatas.userAccountToken
-          if (_this.loginDatas.userAccountInfo.storePkcode) {
-            sessionStorage.setItem('storePkcode', _this.loginDatas.userAccountInfo.storePkcode)
-            sessionStorage.setItem('storePkid', _this.loginDatas.userAccountInfo.storePkid)
-          } else if (_this.loginDatas.userAccountInfo.agentPkcode) {
-            sessionStorage.setItem('agentPkcode', _this.loginDatas.userAccountInfo.agentPkcode)
-            sessionStorage.setItem('agentPkid', _this.loginDatas.userAccountInfo.agentPkid)
+          if (res.data.data.userAccountInfo) {
+            if (res.data.data.userAccountInfo.storePkcode) {
+              sessionStorage.setItem('storePkcode', _this.loginDatas.userAccountInfo.storePkcode)
+              sessionStorage.setItem('storePkid', _this.loginDatas.userAccountInfo.storePkid)
+            } else if (res.data.data.userAccountInfo.agentPkcode) {
+              sessionStorage.setItem('agentPkcode', _this.loginDatas.userAccountInfo.agentPkcode)
+              sessionStorage.setItem('agentPkid', _this.loginDatas.userAccountInfo.agentPkid)
+            }
           }
           sessionStorage.setItem('userName', _this.ruleForm.userAccountName)
           sessionStorage.setItem('userPwd', _this.ruleForm.userAccountPwd)
@@ -70,20 +84,21 @@ export default {
           this.$router.push('/')
         } else {
           _this.$message.error(res.data.message)
+          return false
         }
       }).catch((error) => {
         console.log(error)
         _this.$message.error('系统异常，登录失败')
       })
-      // this.$refs[formName].validate((valid) => {
-      //   if (valid) {
-      //     localStorage.setItem('ms_username', this.ruleForm.username)
-      //     this.$router.push('/')
-      //   } else {
-      //     console.log('error submit!!')
-      //     return false
-      //   }
-      // })
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          localStorage.setItem('ms_username', this.ruleForm.username)
+          this.$router.push('/')
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
     }
   }
 }

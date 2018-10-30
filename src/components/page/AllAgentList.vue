@@ -53,18 +53,24 @@
       <!--</div>-->
     </div>
     <!--新增-->
-    <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="40%">
-      <el-form ref="form" :model="form" label-width="100px">
-        <el-form-item label="创建时间">
-          <el-date-picker type="date" placeholder="选择日期" v-model="form.agentCtime" value-format="yyyy-MM-dd" style="width: 100%;"></el-date-picker>
+    <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="35%" :close-on-click-modal="false">
+      <el-form ref="form" status-icon :model="form" label-width="120px" :rules="rules" class="demo-ruleForm">
+        <el-form-item label="创建时间" prop="agentCtime">
+          <el-date-picker type="date" placeholder="选择日期" v-model="form.agentCtime" value-format="yyyy-MM-dd" style="width: 100%;" :picker-options="pickerOptions0"></el-date-picker>
         </el-form-item>
-        <el-form-item label="品牌代理名称">
+        <el-form-item label="用户名" prop="userAccountName" v-if="accountInfo===true">
+          <el-input v-model="form.userAccountName"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="userAccountPwd" v-if="accountInfo===true">
+          <el-input v-model="form.userAccountPwd"></el-input>
+        </el-form-item>
+        <el-form-item label="品牌代理名称" prop="agentName">
           <el-input v-model="form.agentName"></el-input>
         </el-form-item>
         <el-form-item label="品牌代理昵称">
           <el-input v-model="form.agentNikename"></el-input>
         </el-form-item>
-        <el-form-item label="代理类型">
+        <el-form-item label="代理类型" prop="agentType">
           <el-select v-model="form.agentType" placeholder="请选择">
             <el-option
               v-for="item in options"
@@ -74,35 +80,35 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="公司名称">
+        <el-form-item label="公司名称" prop="agentCompanyName">
           <el-input v-model="form.agentCompanyName"></el-input>
         </el-form-item>
         <el-form-item label="公司编号">
           <el-input v-model="form.agentCompanyIdnum"></el-input>
         </el-form-item>
-        <el-form-item label="公司地址">
+        <el-form-item label="公司地址" prop="agentCompanyAddress">
           <el-input v-model="form.agentCompanyAddress"></el-input>
         </el-form-item>
-        <el-form-item label="联系人">
+        <el-form-item label="联系人" prop="agentLinkman">
           <el-input v-model="form.agentLinkman"></el-input>
         </el-form-item>
-        <el-form-item label="联系电话">
+        <el-form-item label="联系电话" prop="agentLinkmanTel">
           <el-input v-model="form.agentLinkmanTel"></el-input>
         </el-form-item>
-        <el-form-item label="结束时间">
-          <el-date-picker type="date" placeholder="选择时间" v-model="form.agentEndtime" value-format="yyyy-MM-dd" style="width: 100%"></el-date-picker>
+        <el-form-item label="结束时间" prop="agentEndtime">
+          <el-date-picker type="date" placeholder="选择时间" v-model="form.agentEndtime" value-format="yyyy-MM-dd" style="width: 100%" :picker-options="pickerOptions0"></el-date-picker>
         </el-form-item>
-        <el-form-item label="经度">
-          <el-input v-model="form.agentCompanyAddressLongitude"></el-input>
-        </el-form-item>
-        <el-form-item label="纬度">
-          <el-input v-model="form.agentCompanyAddressLatitude"></el-input>
-        </el-form-item>
+        <!--<el-form-item label="经度">-->
+          <!--<el-input v-model="form.agentCompanyAddressLongitude"></el-input>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="纬度">-->
+          <!--<el-input v-model="form.agentCompanyAddressLatitude"></el-input>-->
+        <!--</el-form-item>-->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addVisible=false">取消</el-button>
-        <el-button type="primary" @click="addAgent()" v-if="!editVisible">确定</el-button>
-        <el-button type="primary" @click="saveEdit()" v-else>编辑确定</el-button>
+        <el-button type="primary" @click="addAgent('form')" v-if="!editVisible">确定</el-button>
+        <el-button type="primary" @click="saveEdit()" v-else>确定</el-button>
       </span>
     </el-dialog>
     <!-- 删除提示框 -->
@@ -125,12 +131,14 @@
 </template>
 
 <script>
-
+import vali from '../common/validate'
 export default {
   name: 'basetable',
 
   data () {
     return {
+      accountInfo: true,
+      pickerOptions0: this.startDate(),
       url: './static/vuetable.json',
       allAgent: [],
       message: '是否禁用该商户?',
@@ -150,6 +158,8 @@ export default {
       agentPkid: '',
       agentDisable: '',
       form: {
+        userAccountName: '',
+        userAccountPwd: '',
         agentName: '',
         agentNikename: '',
         agentType: '',
@@ -173,7 +183,41 @@ export default {
           label: '商户'
         }
       ],
-      idx: -1
+      idx: -1,
+      rules: {
+        userAccountPwd: [
+          { required: true, message: '请输入密码', trigger: 'change' },
+          { min: 6, message: '长度在最小6个字符', trigger: 'change' }
+        ],
+        userAccountName: [
+          { required: true, message: '请输入用户名', trigger: 'change' }
+        ],
+        agentName: [
+          { required: true, message: '请输入品牌代理名称', trigger: 'change' }
+        ],
+        agentType: [
+          { required: true, message: '请选择代理类型', trigger: 'change' }
+        ],
+        agentCompanyName: [
+          { required: true, message: '请输入公司名称', trigger: 'change' }
+        ],
+        agentCompanyAddress: [
+          { required: true, message: '请输入公司地址', trigger: 'change' }
+        ],
+        agentLinkman: [
+          { required: true, message: '请输入联系人', trigger: 'change' }
+        ],
+        agentLinkmanTel: [
+          { required: true, message: '请输入联系人手机号', trigger: 'change' },
+          {validator: vali.validatePhone, trigger: 'change'}
+        ],
+        agentCtime: [
+          { required: true, message: '请选择创建时间', trigger: 'change' }
+        ],
+        agentEndtime: [
+          { required: true, message: '请选择结束时间', trigger: 'change' }
+        ]
+      }
     }
   },
   created () {
@@ -201,6 +245,13 @@ export default {
   //   }
   // },
   methods: {
+    startDate () {
+      return {
+        disabledDate (time) {
+          return time.getTime() < Date.now() - 8.64e7
+        }
+      }
+    },
     //  禁用转文字
     disableTxt (val) {
       if (val.agentDisable === '0') {
@@ -231,8 +282,6 @@ export default {
         _this.message = '是否启用该商户？'
         _this.agentDisable = '1'
       }
-      console.log(_this.agentDisable)
-      console.log(_this.agentPkid)
       this.disableVisible = true
     },
     disableAgent () {
@@ -241,13 +290,17 @@ export default {
         agentPkid: _this.agentPkid,
         agentDisable: parseInt(_this.agentDisable)
       }
-      _this.axios.post('/api/sysOperate/disableAgent', disableData, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/sysOperate/disableAgent', disableData, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
-        _this.allAgent = res.data.data
-        _this.disableVisible = false
-        _this.$message.success('操作成功')
-        _this.getData()
+        if (res.data.success === '200') {
+          _this.allAgent = res.data.data
+          _this.disableVisible = false
+          _this.$message.success('操作成功')
+          _this.getData()
+        } else {
+          _this.$message.error('操作失败')
+        }
       }).catch((error) => {
         console.log(error)
       })
@@ -255,6 +308,7 @@ export default {
     // 创建商户弹窗
     addModelOpen () {
       var _this = this
+      _this.accountInfo = true
       _this.addVisible = true
       _this.dailogTitleType = '新增'
       _this.editVisible = false
@@ -262,6 +316,7 @@ export default {
     // 编辑商户弹窗
     handleEdit (index, row) {
       var _this = this
+      _this.accountInfo = false
       _this.idx = index
       _this.dailogTitleType = '编辑'
       _this.addVisible = true
@@ -273,6 +328,8 @@ export default {
       //   _this.form.agentType = '商户'
       // }
       _this.form = {
+        userAccountName: item.userAccountName,
+        userAccountPwd: item.userAccountPwd,
         agentName: item.agentName,
         agentNikename: item.agentNikename,
         agentType: item.agentType,
@@ -292,24 +349,27 @@ export default {
       this.cur_page = val
       this.getData()
     },
-    // 获取 easy-mock 的模拟数据
     getData () {
       var _this = this
-      _this.axios.post('/api/sysOperate/findAllAgentList', {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/sysOperate/findAllAgentList', {
         // page: this.cur_page
         headers: {'Content-type': 'application/json'}
       }).then((res) => {
-        _this.allAgent = res.data.data
+        if (res.data.success === '200') {
+          _this.allAgent = res.data.data
+        } else {
+          _this.$message.error('无操作权限')
+        }
+      }).catch((error) => {
+        console.log(error)
       })
     },
     // 新增商户信息
-    addAgent () {
+    addAgent (formName) {
       var _this = this
-      var userName = localStorage.getItem('userName')
-      var userPwd = localStorage.getItem('userPwd')
       var agent = {
-        userAccountName: userName,
-        userAccountPwd: userPwd,
+        userAccountName: _this.form.userAccountName,
+        userAccountPwd: _this.form.userAccountPwd,
         agentName: _this.form.agentName,
         agentNikename: _this.form.agentNikename,
         agentType: parseInt(_this.form.agentType),
@@ -323,15 +383,20 @@ export default {
         agentCtime: _this.form.agentCtime,
         agentEndtime: _this.form.agentEndtime
       }
-      _this.axios.post('/api/sysOperate/saveAgent', agent, {
-        headers: {'Content-Type': 'application/json'}
-      }).then((res) => {
-        _this.allAgent = res.data.data
-        _this.$message.success('添加成功')
-        _this.addVisible = false
-        _this.getData()
-      }).catch((error) => {
-        console.log(error)
+      _this.$refs[formName].validate((valid) => {
+        if (valid) {
+          _this.axios.post(this.GLOBAL.BASE_URL + '/sysOperate/saveAgent', agent, {
+            headers: {'Content-Type': 'application/json'}
+          }).then((res) => {
+            _this.allAgent = res.data.data
+            _this.$message.success('添加成功')
+            _this.addVisible = false
+            // _this.getData()
+            location.reload()
+          }).catch((error) => {
+            console.log(error)
+          })
+        }
       })
     },
     search () {
@@ -363,8 +428,6 @@ export default {
     },
     // 保存编辑
     saveEdit () {
-      var userName = localStorage.getItem('userName')
-      var userPwd = localStorage.getItem('userPwd')
       var _this = this
       var index = _this.idx
       var item = _this.allAgent[index]
@@ -374,8 +437,8 @@ export default {
         _this.form.agentType = '1'
       }
       var agent = {
-        userAccountName: userName,
-        userAccountPwd: userPwd,
+        userAccountName: item.userAccountName,
+        userAccountPwd: item.userAccountPwd,
         agentPkid: item.agentPkid,
         agentName: _this.form.agentName,
         agentNikename: _this.form.agentNikename,
@@ -391,11 +454,12 @@ export default {
         agentEndtime: _this.form.agentEndtime
       }
       // var pkid = {agentPkid: _this.allAgent[index].agent}
-      _this.axios.post('/api/sysOperate/saveAgent', agent)
+      _this.axios.post(this.GLOBAL.BASE_URL + '/sysOperate/saveAgent', agent)
         .then((res) => {
           _this.allAgent = res.data.data
           _this.$message.success('修改成功')
-          _this.getData()
+          // _this.getData()
+          location.reload()
           this.addVisible = false
         })
     },
@@ -404,7 +468,7 @@ export default {
       var _this = this
       var index = _this.idx
       var pkid = {agentPkid: _this.allAgent[index].agentPkid}
-      _this.axios.post('/api/sysOperate/deleteAgentById', pkid,
+      _this.axios.post(this.GLOBAL.BASE_URL + '/sysOperate/deleteAgentById', pkid,
         {headers: {'Content-Type': 'application/json'}})
         .then((res) => {
           _this.allAgent.splice(index, 1)
@@ -443,5 +507,10 @@ export default {
   .pagination{
     width: 70%;
     text-align: center;
+  }
+  .addBtn{
+    background-color: #d71718;
+    color: #fff;
+    margin-bottom: 20px;
   }
 </style>

@@ -36,7 +36,7 @@
         </el-table>
       </div>
       <!--新增-->
-      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%">
+      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
         <el-form :model="cardForm" label-width="80px">
           <el-form-item label="卡ID" >
             <el-select v-model="cardForm.cardPkid" @change="getCode">
@@ -142,7 +142,7 @@ export default {
       let _this = this
       let storePkid = sessionStorage.getItem('storePkid')
       let pkid = {storePkid: parseInt(storePkid)}
-      _this.axios.post('/api/agentOfCourseReleaseOperate/cardList', pkid, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCourseReleaseOperate/findHandyCardList', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
@@ -168,13 +168,13 @@ export default {
       let _this = this
       let storePkid = sessionStorage.getItem('storePkid')
       let pkid = {storePkid: parseInt(storePkid)}
-      _this.axios.post('/api/agentOfCardReleaseOperate/findCardReleaseByStorePkid', pkid, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCardReleaseOperate/findCardReleaseByStorePkid', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
           _this.cardReleaseData = res.data.data
         } else {
-          _this.$message.error('没有操作权限')
+          _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)
@@ -260,7 +260,7 @@ export default {
         cardPkid: _this.cardForm.cardPkid,
         cardPkcode: _this.cardPkcode
       }
-      _this.axios.post('/api/agentOfCardReleaseOperate/addCardRelease', formData, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCardReleaseOperate/addCardRelease', formData, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
@@ -268,6 +268,7 @@ export default {
           _this.$message.success('添加成功')
           _this.getData()
           _this.addVisible = false
+          location.reload()
         } else {
           _this.$message.error(res.data.message)
         }
@@ -290,7 +291,7 @@ export default {
         cardPkid: '',
         cardPkcode: ''
       }
-      _this.axios.post('/api/agentOfCardReleaseOperate/updateCardRelease', editData, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCardReleaseOperate/updateCardRelease', editData, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
@@ -298,6 +299,7 @@ export default {
           _this.$message.success('修改成功')
           _this.addVisible = false
           _this.getData()
+          location.reload()
         } else {
           _this.$message.error(res.data.message)
         }
@@ -312,7 +314,7 @@ export default {
         rechargeaCardReleasePkid: _this.rechargeaCardReleasePkid,
         rechargeaCardReleaseStatus: _this.rechargeaCardReleaseStatus
       }
-      _this.axios.post('/api/agentOfCardReleaseOperate/configInvalidCardRelease', disableData, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCardReleaseOperate/configInvalidCardRelease', disableData, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
@@ -334,7 +336,7 @@ export default {
         rechargeaCardReleasePkid: _this.rechargeaCardReleasePkid,
         rechargeaCardReleasePut: _this.rechargeaCardReleasePut
       }
-      _this.axios.post('/api/agentOfCardReleaseOperate/configCardReleasePut', disableData, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCardReleaseOperate/configCardReleasePut', disableData, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
@@ -354,5 +356,9 @@ export default {
 </script>
 
 <style scoped>
-
+  .addBtn{
+    background-color: #d71718;
+    color: #fff;
+    margin-bottom: 20px;
+  }
 </style>

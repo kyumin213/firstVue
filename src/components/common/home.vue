@@ -53,6 +53,7 @@ export default {
   }
   .content-box{
     left: 0;
+    background-color: #fff;
   }
 
   .el-header, .el-footer {

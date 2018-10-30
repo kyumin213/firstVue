@@ -6,12 +6,12 @@
         </el-row>
       </div>
       <div class="container">
-        <!--<div class="handle-box">-->
-        <!--<el-button type="primary" icon="delete" class="handle-del mr10" @click="delAll">批量删除</el-button>-->
-        <!--<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>-->
-        <!--<el-button type="primary" icon="search" @click="search">搜索</el-button>-->
-        <!--</div>-->
-        <el-table :data="tableDataEnd" border style="width: 100%"
+        <span class="txt">手机号</span>
+        <el-input v-model="phone" placeholder="请输入手机号" class="handle-input" style="margin-right: 40px"></el-input>
+        <span class="txt">姓名</span>
+        <el-input v-model="names" placeholder="请输入姓名" class="handle-input mr10"></el-input>
+        <el-button type="primary" icon="search" @click="search">搜索</el-button>
+        <el-table :data="staffList" border style="width: 100%"
                   @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="storeStaffPkid" align="center" label="pkid" width="80">
@@ -40,29 +40,29 @@
             </template>
           </el-table-column>
         </el-table>
-        <div class="pagination center" v-if="this.totalPage>=this.pageSize">
-          <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-size="pageSize" :current-page="currentPage"
-                         layout="prev, pager, next" :total="totalPage">
+        <div class="pagination center" v-if="this.total >= this.pages">
+          <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"   :page-size="pageSize" layout="prev, pager, next" :total="total">
           </el-pagination>
         </div>
       </div>
       <!--新增-->
-      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="38%">
+      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="38%" :close-on-click-modal="false">
         <el-form ref="form" status-icon :model="form" :rules="rules" label-width="80px" class="demo-ruleForm">
-          <el-form-item label="创建时间">
+          <el-form-item label="创建时间" prop="storeStaffCtime">
             <el-date-picker type="date" placeholder="选择日期" v-model="form.storeStaffCtime" value-format="yyyy-MM-dd"
-                            style="width: 100%;"></el-date-picker>
+                            style="width: 100%;" :picker-options="pickerOptions0">
+            </el-date-picker>
           </el-form-item>
           <el-form-item label="手机号" prop="storeStaffPhone">
             <!--<el-input v-validate="'required|phone'" :class="{'input': true,'is-danger': errors.has('phone') }" name="phone" type="text" v-model="form.storeStaffPhone"></el-input>-->
             <!--<span v-show="errors.has('phone')"  style="color: #f00">{{ errors.first('phone') }}</span>-->
-            <el-input v-model="form.storeStaffPhone"></el-input>
+            <el-input v-model="form.storeStaffPhone" name="phone"></el-input>
           </el-form-item>
           <el-form-item label="姓名" prop="storeStaffName">
             <el-input v-model="form.storeStaffName" name="name"></el-input>
           </el-form-item>
           <el-form-item label="昵称">
-            <el-input v-model="form.storeStaffNikename" @keyup.enter.native="submitForm('form')" placeholder="storeStaffNikename"></el-input>
+            <el-input v-model="form.storeStaffNikename"></el-input>
           </el-form-item>
           <el-form-item label="性别">
             <el-radio-group v-model="form.storeStaffSex">
@@ -70,13 +70,10 @@
               <el-radio :label="2">女</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="年龄" prop="storeStaffAge" :rules="[
-      { required: true, message: '年龄不能为空'},
-      { type: 'number', message: '年龄必须为数字值'}
-    ]">
-            <el-input v-model.number="form.storeStaffAge" auto-complete="off" type="storeStaffAge"></el-input>
+          <el-form-item label="年龄" prop="storeStaffAge">
+            <el-input v-model.number="form.storeStaffAge"  auto-complete="off" type="storeStaffAge"></el-input>
           </el-form-item>
-          <el-form-item label="类型">
+          <el-form-item label="类型" prop="storeStaffType">
             <el-radio-group v-model="form.storeStaffType" size="medium">
               <el-radio-button label="1" >前台</el-radio-button>
               <el-radio-button label="2">会籍</el-radio-button>
@@ -101,22 +98,22 @@
 </template>
 
 <script>
+import vali from '../common/validate'
 export default {
   name: 'staffList',
   data () {
-    var validatePhone = (rule, value, callback) => {
-      if (value === '') {
-        callback(new Error('请输入手机号'))
-      } else {
-        const reg = /~((13|14|15|17|18)[0-9]{1}\d{8})$/.test(value)
-        if (reg) {
-          callback()
-        } else {
-          return callback(new Error('请输入正确的手机号'))
-        }
-      }
-    }
     return {
+      pickerOptions0: {
+        disabledDate (time) {
+          return time.getTime() < Date.now() - 8.64e7
+        }
+      },
+      currentPage: 1,
+      pageSize: 10,
+      total: null,
+      pages: null,
+      phone: null,
+      names: null,
       staffList: [],
       message: '',
       addVisible: false,
@@ -125,9 +122,6 @@ export default {
       disableVisible: false,
       is_search: false,
       dailogTitleType: '',
-      currentPage: 1,
-      pageSize: 7,
-      totalPage: 0,
       tableDataEnd: [],
       filterTableDataEnd: [],
       multipleSelection: [],
@@ -139,18 +133,27 @@ export default {
         storeStaffCtime: '',
         storeStaffName: '',
         storeStaffNikename: '',
-        storeStaffSex: null,
+        storeStaffSex: 1,
         storeStaffAge: null,
-        storeStaffType: null,
+        storeStaffType: 1,
         storeMemberIdnum: ''
       },
       idx: -1,
       rules: {
         storeStaffName: [
-          { required: true, message: '请输入姓名', trigger: 'blur' }
+          { required: true, message: '请输入姓名', trigger: 'change' }
         ],
         storeStaffPhone: [
-          {validator: validatePhone, trigger: 'blur'}
+          {required: true, message: '请输入手机号', trigger: 'change'},
+          {validator: vali.validatePhone, trigger: 'blur'}
+        ],
+        storeStaffAge: [
+          {required: true, message: '请输入年龄', trigger: 'change'},
+          {type: 'number', message: '年龄必须为数字值'},
+          {validator: vali.validateAge, trigger: 'blur'}
+        ],
+        storeStaffCtime: [
+          {required: true, message: '请选择创建时间', trigger: 'change'}
         ]
       }
     }
@@ -159,26 +162,68 @@ export default {
     this.getData()
   },
   computed: {
-    data () {
-      return this.tableDataEnd.filter((d) => {
-        let isDel = false
-        for (let i = 0; i < this.del_list.length; i++) {
-          if (d.storeStaffName === this.del_list[i].storeStaffName) {
-            isDel = true
-            break
-          }
-        }
-        if (!isDel) {
-          if ((d.storeStaffName.indexOf(this.select_word) > -1 ||
-            d.storeStaffNikename.indexOf(this.select_word) > -1)
-          ) {
-            return d
-          }
-        }
-      })
-    }
+    // data () {
+    //   return this.tableDataEnd.filter((d) => {
+    //     let isDel = false
+    //     for (let i = 0; i < this.del_list.length; i++) {
+    //       if (d.storeStaffName === this.del_list[i].storeStaffName) {
+    //         isDel = true
+    //         break
+    //       }
+    //     }
+    //     if (!isDel) {
+    //       if ((d.storeStaffName.indexOf(this.select_word) > -1 ||
+    //         d.storeStaffNikename.indexOf(this.select_word) > -1)
+    //       ) {
+    //         return d
+    //       }
+    //     }
+    //   })
+    // }
   },
   methods: {
+    // pickerOptions0: {
+    //   disabledDate (time) {
+    //     return time.getTime() < Date.now() - 8.64e7
+    //   }
+    // },
+    // disabledDate: (time) => {
+    //   let beginDateVal = this.addJobForm.beginDate
+    //   if (beginDateVal) {
+    //     return time.getTime() < beginDateVal
+    //   }
+    // },
+    search () {
+      let _this = this
+      _this.is_search = true
+      let storePkid = sessionStorage.getItem('storePkid')
+      if (_this.phone === '' || _this.phone === null) {
+        _this.phone = null
+      }
+      if (_this.names === '' || _this.names === null) {
+        _this.names = null
+      }
+
+      let searchData = {
+        phone: _this.phone,
+        name: _this.names,
+        storePkid: parseInt(storePkid)
+      }
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfStaffOperate/findStaffByStorePkid', searchData, {
+        headers: {'Content-Type': 'application/json'}
+      }).then((res) => {
+        if (res.data.success === '200') {
+          _this.staffList = res.data.data.data
+          // _this.total = res.data.data.total
+          // _this.pages = res.data.data.pages
+          // _this.getData()
+        } else {
+          _this.$message.error('无操作权限')
+        }
+      }).catch((error) => {
+        console.log(error)
+      })
+    },
     //  会员类型转文字
     memberTypeTxt (val) {
       if (val.storeStaffType === 1) {
@@ -205,15 +250,27 @@ export default {
     },
     // 分页导航
     handleCurrentChange (val) {
-      this.currentPage = val
-      if (!this.flag) {
-        this.currentChangePage(this.staffList)
-      } else {
-        this.currentChangePage(this.filterTableDataEnd)
+      let _this = this
+      _this.currentPage = val
+      let storePkid = sessionStorage.getItem('storePkid')
+      let storeDate = {
+        pageSize: _this.pageSize,
+        pageNum: val,
+        storePkid: parseInt(storePkid)
       }
-      // this.getData()
-      //   .slice((currentPage-1)*pageSize,currentPage*pageSize)
-      // this.currentChangePage(this.storeList, val)
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfStaffOperate/findStaffByStorePkid', storeDate, {
+        headers: {'Content-Type': 'application/json'}
+      }).then((res) => {
+        if (res.data.success === '200') {
+          _this.staffList = res.data.data.data
+          _this.total = res.data.data.total
+          _this.pages = res.data.data.pages
+        } else {
+          _this.$message.error('无操作权限')
+        }
+      }).catch((error) => {
+        console.log(error)
+      })
     },
     handleSizeChange: function (size) {
       this.pageSize = size
@@ -239,21 +296,17 @@ export default {
       let _this = this
       let pkId = sessionStorage.getItem('storePkid')
       let storePkid = {
+        pageSize: _this.pageSize,
+        pageNum: 1,
         storePkid: parseInt(pkId)
       }
-      _this.axios.post('/api/agentOfStaffOperate/findStaffByStorePkid', storePkid, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfStaffOperate/findStaffByStorePkid', storePkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
-          _this.staffList = res.data.data
-          _this.totalPage = _this.staffList.length
-          if (_this.totalPage > _this.pageSize) {
-            for (let index = 0; index < _this.pageSize; index++) {
-              _this.tableDataEnd.push(_this.staffList[index])
-            }
-          } else {
-            _this.tableDataEnd = _this.staffList
-          }
+          _this.staffList = res.data.data.data
+          _this.total = _this.data.data.total
+          _this.pages = _this.data.data.pages
         } else {
           _this.$message.error(res.data.message)
         }
@@ -270,10 +323,10 @@ export default {
       let pkid = item.storeStaffPkid
       _this.storeStaffPkid = pkid
       if (agentDis === 1) {
-        _this.message = '是否禁用该商户？'
+        _this.message = '是否禁用该员工？'
         _this.storeStaffDisable = 0
       } else {
-        _this.message = '是否启用该商户？'
+        _this.message = '是否启用该员工？'
         _this.storeStaffDisable = 1
       }
       this.disableVisible = true
@@ -322,14 +375,15 @@ export default {
       }
       _this.$refs[formName].validate((valid) => {
         if (valid) {
-          _this.axios.post('/api/agentOfStaffOperate/addStaff', store, {
+          _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfStaffOperate/addStaff', store, {
             headers: {'Content-Type': 'application/json'}
           }).then((res) => {
             if (res.data.success === '200') {
               _this.staffList = res.data.data
               _this.$message.success('添加成功')
-              _this.getData()
+              // _this.getData()
               _this.addVisible = false
+              location.reload()
             } else {
               _this.$message.error(res.data.message)
             }
@@ -357,13 +411,14 @@ export default {
         storeStaffType: parseInt(_this.form.storeStaffType),
         storeStaffCtime: _this.form.storeStaffCtime
       }
-      _this.axios.post('/api/agentOfStaffOperate/updateStaff', store, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfStaffOperate/updateStaff', store, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
           _this.staffList = res.data.data
           _this.$message.success('修改成功')
-          _this.getData()
+          // _this.getData()
+          location.reload()
           _this.addVisible = false
         } else {
           _this.$message.error(res.data.message)
@@ -379,7 +434,7 @@ export default {
         storeStaffPkid: _this.storeStaffPkid,
         storeStaffDisable: _this.storeStaffDisable
       }
-      _this.axios.post('/api/agentOfStaffOperate/disableStaffById', disableData, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfStaffOperate/disableStaffById', disableData, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
@@ -399,4 +454,17 @@ export default {
 </script>
 
 <style scoped>
+  .addBtn{
+    background-color: #d71718;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .handle-input {
+    width: 150px;
+    margin-bottom: 20px;
+    display: inline-block;
+  }
+  .txt{
+    font-size: 14px;
+  }
 </style>

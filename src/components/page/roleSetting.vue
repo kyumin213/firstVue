@@ -31,7 +31,7 @@
     </div>
     <div v-else style="text-align: center">加载中...</div>
     <!--新增-->
-    <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="40%">
+    <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="40%" :close-on-click-modal="false">
       <el-form ref="form" :model="form" label-width="100px">
         <el-form-item label="日期">
           <el-date-picker type="date" placeholder="选择日期" v-model="form.userRoleCtime" value-format="yyyy-MM-dd" style="width: 100%;"></el-date-picker>
@@ -103,7 +103,7 @@ export default {
     // 角色列表
     getData () {
       var _this = this
-      axios.post('/api/sysOperate/findAllRoleList',
+      axios.post(this.GLOBAL.BASE_URL + '/sysOperate/findAllRoleList',
         {headers: {'Content-Type': 'application/json'}}
       ).then(result => {
         if (result.data.success === '200') {
@@ -134,7 +134,7 @@ export default {
       } else {
         _this.form.userRoleDisable = '0'
       }
-      axios.post('/api/sysOperate/saveRole', roleData,
+      axios.post(this.GLOBAL.BASE_URL + '/sysOperate/saveRole', roleData,
         {headers: {'Content-Type': 'application/json'}}
       ).then(res => {
         _this.roles.push(roleData)
@@ -148,7 +148,7 @@ export default {
       var _this = this
       var index = _this.idx
       var pkid = {userRolePkid: _this.roles[index].userRolePkid}
-      axios.post('/api/sysOperate/deleteRoleById', pkid,
+      axios.post(this.GLOBAL.BASE_URL + '/sysOperate/deleteRoleById', pkid,
         {headers: {'Content-Type': 'application/json'}}
       )
         .then(res => {
@@ -198,7 +198,7 @@ export default {
         userRoleDisable: _this.form.userRoleDisable,
         userRoleCtime: _this.form.userRoleCtime
       }
-      axios.post('/api/sysOperate/saveRole', roleData,
+      axios.post(this.GLOBAL.BASE_URL + '/sysOperate/saveRole', roleData,
         {headers: {'Content-Type': 'application/json'}})
         .then((res) => {
           _this.roleData = res.data.data
@@ -212,6 +212,10 @@ export default {
   }
 }
 </script>
-<style>
-
+<style scoped>
+  .addBtn{
+    background-color: #d71718;
+    color: #fff;
+    margin-bottom: 20px;
+  }
 </style>

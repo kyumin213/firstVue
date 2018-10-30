@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <template>
     <div class="table">
       <div class="block">
@@ -6,12 +7,12 @@
         </el-row>
       </div>
       <div class="container">
-        <!--<div class="handle-box">-->
-        <!--<el-button type="primary" icon="delete" class="handle-del mr10" @click="delAll">批量删除</el-button>-->
-        <!--<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>-->
-        <!--<el-button type="primary" icon="search" @click="search">搜索</el-button>-->
-        <!--</div>-->
-        <el-table :data="tableDataEnd" border style="width: 100%"
+        <span class="txt">手机号</span>
+        <el-input v-model="phone" placeholder="请输入手机号" class="handle-input" style="margin-right: 40px"></el-input>
+        <span class="txt">姓名</span>
+        <el-input v-model="names" placeholder="请输入姓名" class="handle-input mr10"></el-input>
+        <el-button type="primary" icon="search" @click="search">搜索</el-button>
+        <el-table :data="memberList" border style="width: 100%"
                   @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="storeMemberPkid" align="center" label="pkid" width="80">
@@ -40,23 +41,22 @@
             </template>
           </el-table-column>
         </el-table>
-        <div class="pagination center" v-if="this.totalPage>=this.pageSize">
-          <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-size="pageSize" :current-page="currentPage"
-                         layout="prev, pager, next" :total="totalPage">
+        <div class="pagination center" v-if="this.total >= this.pages">
+          <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"   :page-size="pageSize" layout="prev, pager, next" :total="total">
           </el-pagination>
         </div>
       </div>
       <!--新增-->
-      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="38%">
-        <el-form ref="form" :model="form" label-width="80px">
-          <el-form-item label="创建时间">
+      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="38%" :close-on-click-modal="false">
+        <el-form ref="form" status-icon :model="form" label-width="80px" :rules="rules" class="demo-ruleForm">
+          <el-form-item label="创建时间" prop="storeMemberCtime">
             <el-date-picker type="date" placeholder="选择日期" v-model="form.storeMemberCtime" value-format="yyyy-MM-dd"
-                            style="width: 100%;"></el-date-picker>
+                            style="width: 100%;" :picker-options="pickerOptions0"></el-date-picker>
           </el-form-item>
-          <el-form-item label="手机号">
+          <el-form-item label="手机号" prop="storeMemberPhone">
             <el-input v-model="form.storeMemberPhone"></el-input>
           </el-form-item>
-          <el-form-item label="姓名">
+          <el-form-item label="姓名" prop="storeMemberName">
             <el-input v-model="form.storeMemberName"></el-input>
           </el-form-item>
           <el-form-item label="昵称">
@@ -86,7 +86,7 @@
         <span slot="footer" class="dialog-footer">
         <el-button @click="addVisible=false">取消</el-button>
         <el-button type="primary" @click="editStore()" v-if="editVisible">确定</el-button>
-          <el-button type="primary" @click="addStore()" v-else>确定</el-button>
+          <el-button type="primary" @click="addStore('form')" v-else>确定</el-button>
       </span>
       </el-dialog>
       <!--禁用提示框-->
@@ -101,10 +101,18 @@
 </template>
 
 <script>
+  import vali from '../common/validate'
 export default {
   name: 'memberList',
   data () {
     return {
+      currentPage: 1,
+      pageSize: 10,
+      total: null,
+      pages: null,
+      phone: null,
+      names: null,
+      pickerOptions0: this.startDate(),
       memberList: [],
       message: '',
       addVisible: false,
@@ -113,9 +121,6 @@ export default {
       disableVisible: false,
       is_search: false,
       dailogTitleType: '',
-      currentPage: 1,
-      pageSize: 7,
-      totalPage: 0,
       tableDataEnd: [],
       filterTableDataEnd: [],
       multipleSelection: [],
@@ -124,41 +129,91 @@ export default {
       flag: false,
       form: {
         storeMemberPhone: null,
-        storeMemberCtime: '',
-        storeMemberName: '',
-        storeMemberNikename: '',
-        storeMemberSex: null,
+        storeMemberCtime: null,
+        storeMemberName: null,
+        storeMemberNikename: null,
+        storeMemberSex: 1,
         storeMemberAge: null,
-        storeMemberType: null,
-        storeMemberIdnum: ''
+        storeMemberType: 1,
+        storeMemberIdnum: null
       },
-      idx: -1
+      idx: -1,
+      rules: {
+        storeMemberName: [
+          { required: true, message: '请输入姓名', trigger: 'change' }
+        ],
+        storeMemberCtime: [
+          { required: true, message: '请选择创建时间', trigger: 'change' }
+        ],
+        storeMemberPhone: [
+          { required: true, message: '请输入手机号', trigger: 'change' },
+          {validator: vali.validatePhone, trigger: 'blur'}
+        ]
+      }
     }
   },
   created () {
     this.getData()
   },
   computed: {
-    data () {
-      return this.tableDataEnd.filter((d) => {
-        let isDel = false
-        for (let i = 0; i < this.del_list.length; i++) {
-          if (d.storeMemberName === this.del_list[i].storeMemberName) {
-            isDel = true
-            break
-          }
-        }
-        if (!isDel) {
-          if ((d.storeMemberName.indexOf(this.select_word) > -1 ||
-            d.storeMemberPhone.indexOf(this.select_word) > -1)
-          ) {
-            return d
-          }
-        }
-      })
-    }
+    // data () {
+    //   return this.tableDataEnd.filter((d) => {
+    //     let isDel = false
+    //     for (let i = 0; i < this.del_list.length; i++) {
+    //       if (d.storeMemberName === this.del_list[i].storeMemberName) {
+    //         isDel = true
+    //         break
+    //       }
+    //     }
+    //     if (!isDel) {
+    //       if ((d.storeMemberName.indexOf(this.select_word) > -1 ||
+    //         d.storeMemberPhone.indexOf(this.select_word) > -1)
+    //       ) {
+    //         return d
+    //       }
+    //     }
+    //   })
+    // }
   },
   methods: {
+    search () {
+      let _this = this
+      _this.is_search = true
+      let storePkid = sessionStorage.getItem('storePkid')
+      if (_this.phone === '' || _this.phone === null) {
+        _this.phone = null
+      }
+      if (_this.names === '' || _this.names === null) {
+        _this.names = null
+      }
+
+      let searchData = {
+        phone: _this.phone,
+        name: _this.names,
+        storePkid: parseInt(storePkid)
+      }
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfMemberOperate/findMemberByStorePkid', searchData, {
+        headers: {'Content-Type': 'application/json'}
+      }).then((res) => {
+        if (res.data.success === '200') {
+          _this.memberList = res.data.data.data
+          // _this.total = res.data.data.total
+          // _this.pages = res.data.data.pages
+          // _this.getData()
+        } else {
+          _this.$message.error('无操作权限')
+        }
+      }).catch((error) => {
+        console.log(error)
+      })
+    },
+    startDate () {
+      return {
+        disabledDate (time) {
+          return time.getTime() < Date.now() - 8.64e7
+        }
+      }
+    },
     //  会员类型转文字
     memberTypeTxt (val) {
       if (val.storeMemberType === 1) {
@@ -189,15 +244,28 @@ export default {
     },
     // 分页导航
     handleCurrentChange (val) {
-      this.currentPage = val
-      if (!this.flag) {
-        this.currentChangePage(this.memberList)
-      } else {
-        this.currentChangePage(this.filterTableDataEnd)
+      let _this = this
+      _this.currentPage = val
+      let storePkid = sessionStorage.getItem('storePkid')
+      let storeDate = {
+        pageSize: _this.pageSize,
+        pageNum: val,
+        storePkid: parseInt(storePkid)
       }
-      // this.getData()
-      //   .slice((currentPage-1)*pageSize,currentPage*pageSize)
-      // this.currentChangePage(this.storeList, val)
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfMemberOperate/findMemberByStorePkid', storeDate, {
+        headers: {'Content-Type': 'application/json'}
+      }).then((res) => {
+        if (res.data.success === '200') {
+          _this.memberList = res.data.data.data
+          _this.total = res.data.data.total
+          _this.pages = res.data.data.pages
+        } else {
+          _this.$message.error('无操作权限')
+        }
+      }).catch((error) => {
+        console.log(error)
+      })
+
     },
     handleSizeChange: function (size) {
       this.pageSize = size
@@ -208,38 +276,42 @@ export default {
       this.multipleSelection = val
     },
     // 分页
-    currentChangePage (list) {
-      let from = (this.currentPage - 1) * this.pageSize
-      let to = this.currentPage * this.pageSize
-      this.tableDataEnd = []
-      for (; from < to; from++) {
-        if (list[from]) {
-          this.tableDataEnd.push(list[from])
-        }
-      }
-    },
+    // currentChangePage (list) {
+    //   let from = (this.currentPage - 1) * this.pageSize
+    //   let to = this.currentPage * this.pageSize
+    //   this.tableDataEnd = []
+    //   for (; from < to; from++) {
+    //     if (list[from]) {
+    //       this.tableDataEnd.push(list[from])
+    //     }
+    //   }
+    // },
     // 获取门店列表
     getData () {
       let _this = this
       let pkId = sessionStorage.getItem('storePkid')
       let storePkid = {
+        pageSize: _this.pageSize,
+        pageNum: 1,
         storePkid: parseInt(pkId)
       }
-      _this.axios.post('/api/agentOfMemberOperate/findMemberByStorePkid', storePkid, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfMemberOperate/findMemberByStorePkid', storePkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
-          _this.memberList = res.data.data
-          _this.totalPage = _this.memberList.length
-          if (_this.totalPage > _this.pageSize) {
-            for (let index = 0; index < _this.pageSize; index++) {
-              _this.tableDataEnd.push(_this.memberList[index])
-            }
-          } else {
-            _this.tableDataEnd = _this.memberList
-          }
+          _this.memberList = res.data.data.data
+          _this.total = res.data.data.total
+          _this.pages = res.data.data.pages
+          // _this.totalPage = _this.memberList.length
+          // if (_this.totalPage > _this.pageSize) {
+          //   for (let index = 0; index < _this.pageSize; index++) {
+          //     _this.tableDataEnd.push(_this.memberList[index])
+          //   }
+          // } else {
+          //   _this.tableDataEnd = _this.memberList
+          // }
         } else {
-          _this.$message.error(res.data.message)
+          _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)
@@ -254,10 +326,10 @@ export default {
       let pkid = item.storeMemberPkid
       _this.storeMemberPkid = pkid
       if (agentDis === 1) {
-        _this.message = '是否禁用该商户？'
+        _this.message = '是否禁用该会员？'
         _this.storeMemberDisable = 0
       } else {
-        _this.message = '是否启用该商户？'
+        _this.message = '是否启用该会员？'
         _this.storeMemberDisable = 1
       }
       this.disableVisible = true
@@ -292,7 +364,7 @@ export default {
       }
     },
     //  添加门店
-    addStore () {
+    addStore (formName) {
       let _this = this
       let storePkid = sessionStorage.getItem('storePkid')
       let storePkcode = sessionStorage.getItem('storePkcode')
@@ -308,15 +380,25 @@ export default {
         storeMemberType: parseInt(_this.form.storeMemberType),
         storeMemberCtime: _this.form.storeMemberCtime
       }
-      _this.axios.post('/api/agentOfMemberOperate/addMember', store, {
-        headers: {'Content-Type': 'application/json'}
-      }).then((res) => {
-        _this.memberList = res.data.data
-        _this.$message.success('添加成功')
-        _this.getData()
-        _this.addVisible = false
-      }).catch((error) => {
-        console.log(error)
+      _this.$refs[formName].validate((valid) => {
+        if (valid) {
+          _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfMemberOperate/addMember', store, {
+            headers: {'Content-Type': 'application/json'}
+          }).then((res) => {
+            if (res.data.success === '200') {
+              _this.memberList = res.data.data
+              _this.$message.success('添加成功')
+              location.reload()
+              // _this.getData()
+              _this.addVisible = false
+
+            } else {
+              _this.$message.error(res.data.message)
+            }
+          }).catch((error) => {
+            console.log(error)
+          })
+        }
       })
     },
     //  编辑门店
@@ -334,13 +416,14 @@ export default {
         storeMemberIdnum: _this.form.storeMemberIdnum,
         storeMemberType: parseInt(_this.form.storeMemberType)
       }
-      _this.axios.post('/api/agentOfMemberOperate/updateMember', store, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfMemberOperate/updateMember', store, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         _this.memberList = res.data.data
         _this.$message.success('修改成功')
-        _this.getData()
+        // _this.getData()
         _this.addVisible = false
+        location.reload()
       }).catch((error) => {
         console.log(error)
       })
@@ -352,7 +435,7 @@ export default {
         storeMemberPkid: _this.storeMemberPkid,
         storeMemberDisable: _this.storeMemberDisable
       }
-      _this.axios.post('/api/agentOfMemberOperate/disableMemberById', disableData, {
+      _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfMemberOperate/disableMemberById', disableData, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         _this.memberList = res.data.data
@@ -368,5 +451,17 @@ export default {
 </script>
 
 <style scoped>
-
+  .addBtn{
+    background-color: #d71718;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .handle-input {
+    width: 150px;
+    margin-bottom: 20px;
+    display: inline-block;
+  }
+  .txt{
+    font-size: 14px;
+  }
 </style>

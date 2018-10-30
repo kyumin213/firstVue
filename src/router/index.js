@@ -17,7 +17,7 @@ export default new Router({
         {
           path: '/dashboard',
           component: resolve => require(['../components/page/dashboard.vue'], resolve),
-          meta: {title: '系统首页'}
+          meta: {title: '首页'}
         },
         {
           path: '/cardList',
@@ -35,9 +35,14 @@ export default new Router({
           meta: {title: '设备列表'}
         },
         {
+          path: '/deviceAdminUser',
+          component: resolve => require(['../components/page/deviceManagerList'], resolve),
+          meta: {title: '设备管理员列表'}
+        },
+        {
           path: '/role',
           component: resolve => require(['../components/page/roleSetting.vue'], resolve),
-          meta: {title: '设置'}
+          meta: {title: '角色设置'}
         },
         {
           path: '/agentList',
@@ -57,7 +62,7 @@ export default new Router({
         {
           path: '/auth',
           component: resolve => require(['../components/page/allMenus.vue'], resolve),
-          meta: {title: '角色设置'}
+          meta: {title: '全部菜单'}
         },
         {
           path: '/memberList',
@@ -85,6 +90,16 @@ export default new Router({
           path: '/courseReleaseList',
           component: resolve => require(['../components/page/courseReleaseList'], resolve),
           meta: {title: '课程发布'}
+        },
+        {
+          path: '/couponList',
+          component: resolve => require(['../components/page/couponList'], resolve),
+          meta: {title: '优惠券'}
+        },
+        {
+          path: '/testMap',
+          component: resolve => require(['../components/page/test'], resolve),
+          meta: {title: '地图'}
         },
         {
           path: '/cardOrderList',
