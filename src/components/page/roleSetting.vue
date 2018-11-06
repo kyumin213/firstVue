@@ -106,10 +106,13 @@ export default {
       axios.post(this.GLOBAL.BASE_URL + '/sysOperate/findAllRoleList',
         {headers: {'Content-Type': 'application/json'}}
       ).then(result => {
+        let mes = result.data.message
         if (result.data.success === '200') {
           _this.roles = result.data.data
-        } else {
-          _this.$message.error(result.data.message)
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch(error => {
         console.log(error)

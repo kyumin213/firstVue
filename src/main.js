@@ -25,8 +25,8 @@ axios.defaults.headers.common['token'] = sessionStorage.getItem('token')
 Vue.prototype.axios = axios
 Vue.prototype.GLOBAL = global_
 if (process.env.NODE_ENV === 'production') {
-  Vue.prototype.GLOBAL.BASE_URL = 'http://112.74.169.46:8094' // 测试接口
-  // Vue.prototype.GLOBAL.BASE_URL = 'http://www.handyfitness.com.cn:8094' // 正式接口
+  // Vue.prototype.GLOBAL.BASE_URL = 'http://112.74.169.46:8094' // 测试接口
+  Vue.prototype.GLOBAL.BASE_URL = 'http://www.handyfitness.com.cn:8094' // 正式接口
 } else {
   // Vue.prototype.GLOBAL.BASE_URL = '开发测试地址'
   Vue.prototype.GLOBAL.BASE_URL = '/api'

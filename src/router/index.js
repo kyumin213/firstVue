@@ -96,11 +96,11 @@ export default new Router({
           component: resolve => require(['../components/page/couponList'], resolve),
           meta: {title: '优惠券'}
         },
-        {
-          path: '/testMap',
-          component: resolve => require(['../components/page/test'], resolve),
-          meta: {title: '地图'}
-        },
+        // {
+        //   path: '/testMap',
+        //   component: resolve => require(['../components/page/test'], resolve),
+        //   meta: {title: '地图'}
+        // },
         {
           path: '/cardOrderList',
           component: resolve => require(['../components/page/cardOrderList'], resolve),

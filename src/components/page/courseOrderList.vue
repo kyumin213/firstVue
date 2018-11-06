@@ -51,13 +51,13 @@
     <el-dialog title="课程订单" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
       <el-form :model="cardForm" label-width="100px">
         <el-form-item label="课程名称">
-          <el-select v-model="cardForm.fitnessCourseName" @change="storeCourse">
+          <el-select v-model="cardForm.courseReleaseName" @change="storeCourse" filterable style="width: 100%">
             <el-option v-for="(item, index) in StoreCourseList" :key="item.courseReleasePkid"
-                       :label="item.fitnessCourseName" :value="index"></el-option>
+                       :label="item.courseReleaseName" :value="index"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="会员名称">
-          <el-select v-model="cardForm.storeMemberName" @change="memberCode">
+          <el-select v-model="cardForm.storeMemberName" @change="memberCode" filterable style="width: 100%">
             <el-option v-for="(item, index) in memberList" :key="item.memberPkid" :label="item.storeMemberName"
                        :value="index"></el-option>
           </el-select>
@@ -75,7 +75,7 @@
           </el-input>
         </el-form-item>
         <el-form-item label="支付类型">
-          <el-select v-model="cardForm.courseOrderPayType">
+          <el-select v-model="cardForm.courseOrderPayType" style="width: 100%">
             <el-option v-for="item in payMentType" :key="item.value" :label="item.label"
                        :value="item.value"></el-option>
           </el-select>
@@ -228,12 +228,15 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCourseOrderOperate/findCourseOrderByStorePkid', storeDate, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.courseOrderList = res.data.data.data
           _this.total = res.data.data.total
           _this.pages = res.data.data.pages
-        } else {
-          _this.$message.error('无操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)

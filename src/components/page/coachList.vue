@@ -47,7 +47,7 @@
       </div>
     </div>
     <!--新增-->
-    <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="38%" :close-on-click-modal="false">
+    <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
       <el-form ref="form" status-icon :model="form" label-width="80px" :rules="rules" class="demo-ruleForm">
         <el-form-item label="手机号" prop="storeCoachPhone">
           <el-input v-model="form.storeCoachPhone"></el-input>
@@ -98,7 +98,7 @@
       </span>
     </el-dialog>
     <!--完善资料-->
-    <el-dialog title="完善资料" :visible.sync="perfactVisible" width="40%" :close-on-click-modal="false">
+    <el-dialog title="完善资料" :visible.sync="perfactVisible" width="30%" :close-on-click-modal="false">
       <el-form ref="information" :model="information" label-width="80px">
         <el-form-item label="上传头像">
           <img v-if="information.storeCoachHeadimg" :src="information.storeCoachHeadimg" class="avatar">
@@ -112,7 +112,7 @@
         <el-input type="textarea" v-model="information.profiles"></el-input>
       </el-form-item>
         <el-form-item label="擅长课程">
-          <!--<span></span>-->
+          <span style="color: #d71718">最多10个</span>
         </el-form-item>
         <div v-for="(item, index) in goodCourse" :key="item.key">
           <el-form-item label="课程" >
@@ -123,11 +123,11 @@
             <el-button type="danger" size="small" style="margin-left: 5px" @click="removeRowGoods(item, index)">删除</el-button>
           </el-form-item>
         </div>
-          <el-form-item>
-            <el-button type="primary" size="small" @click="addGoods()">新增擅长课程</el-button>
+          <el-form-item >
+            <el-button type="primary" size="small" @click="addGoods()" v-if="addBtn">新增擅长课程</el-button>
           </el-form-item>
        <el-form-item label="认证证书">
-         <!--<span></span>-->
+         <span style="color: #d71718">最多10个</span>
        </el-form-item>
         <div v-for="(item, index) in certificate" :key="item.key" style="margin-left: 0">
           <el-form-item  label="证书" >
@@ -138,7 +138,7 @@
           </el-form-item>
         </div>
         <el-form-item>
-          <el-button type="primary" size="small" @click="add">新增证书</el-button>
+          <el-button type="primary" size="small" @click="add" v-if="addZsBtn">新增证书</el-button>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -155,6 +155,8 @@ export default {
   name: 'coachList',
   data () {
     return {
+      addBtn: true,
+      addZsBtn: true,
       currentPage: 1,
       pageSize: 10,
       total: null,
@@ -207,7 +209,8 @@ export default {
       idx: -1,
       rules: {
         storeCoachName: [
-          { required: true, message: '请输入姓名', trigger: 'change' }
+          { required: true, message: '请输入姓名', trigger: 'change' },
+          {validator: vali.validateCoachNames, trigger: 'change'}
         ],
         storeCoachPhone: [
           { required: true, message: '请输入手机号', trigger: 'change' },
@@ -226,26 +229,6 @@ export default {
   },
   created () {
     this.getData()
-  },
-  computed: {
-    // data () {
-    //   return this.tableDataEnd.filter((d) => {
-    //     let isDel = false
-    //     for (let i = 0; i < this.del_list.length; i++) {
-    //       if (d.storeCoachName === this.del_list[i].storeCoachName) {
-    //         isDel = true
-    //         break
-    //       }
-    //     }
-    //     if (!isDel) {
-    //       if ((d.storeCoachName.indexOf(this.select_word) > -1 ||
-    //         d.storeCoachNikename.indexOf(this.select_word) > -1)
-    //       ) {
-    //         return d
-    //       }
-    //     }
-    //   })
-    // }
   },
   methods: {
     search () {
@@ -277,25 +260,50 @@ export default {
       })
     },
     add () {
-      this.certificate.push({ text: this.form.length, type: 'text' })
+      let _this = this
+      let len = _this.certificate.length
+      if (len <= 9) {
+        _this.certificate.push({ text: this.form.length, type: 'text' })
+        _this.addZsBtn = true
+      } else {
+        _this.addZsBtn = false
+      }
     },
     // 新增一行擅长课程
     addGoods () {
-      this.goodCourse.push({ goods: '', type: 'text' })
+      let _this = this
+      let len = _this.goodCourse.length
+      console.log(len)
+      if (len <= 9) {
+        _this.goodCourse.push({ goods: '', type: 'text' })
+        _this.addBtn = true
+      } else {
+        _this.addBtn = false
+      }
     },
     // 删除一行
     removeRow (item, index) {
+      let _this = this
+      let len = _this.certificate.length
       // this.certificate.splice(index, 1)
       this.index = this.certificate.indexOf(item)
       if (index !== -1) {
         this.certificate.splice(index, 1)
       }
+      if (len <= 10) {
+        _this.addZsBtn = true
+      }
     },
     removeRowGoods (item, index) {
+      let _this = this
+      let len = _this.goodCourse.length
       // this.goodCourse.splice(index, 1)
-      this.index = this.goodCourse.indexOf(item)
+      _this.index = _this.goodCourse.indexOf(item)
       if (index !== -1) {
-        this.goodCourse.splice(index, 1)
+        _this.goodCourse.splice(index, 1)
+      }
+      if (len <= 10) {
+        _this.addBtn = true
       }
     },
     update (e) {
@@ -426,10 +434,13 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCoachOperate/findCoachByStorePkid', storePkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.coachList = res.data.data.data
-        } else {
-          _this.$message.error('无操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error(res.data.message)
         }
       }).catch((error) => {
         console.log(error)
@@ -479,6 +490,15 @@ export default {
         profiles: item.storeCoachSynopsis
         // goodCourse: item.storeCoachIntroduce.goodCourse
         // certificate: item.storeCoachIntroduce.certificateList
+      }
+      if (_this.goodCourse.length > 10) {
+        _this.addBtn = false
+      } else {
+        _this.addBtn = true
+      } if (_this.certificate.length > 10) {
+        _this.addZsBtn = false
+      } else {
+        _this.addZsBtn = true
       }
     },
     // 编辑弹窗
@@ -534,7 +554,7 @@ export default {
         console.log(error)
       })
     },
-    //  添加门店
+    //  添加教练
     addStore (formName) {
       let _this = this
       let Pkid = sessionStorage.getItem('storePkid')
@@ -660,7 +680,7 @@ export default {
     background-size: cover;
   }
 .topImg{
-  width: 300px;
+  width: 100%;
   /*height: 170px;*/
   background-size: cover;
   display: block;

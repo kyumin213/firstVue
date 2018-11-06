@@ -41,30 +41,41 @@ export default {
   },
   methods: {
     submitForm (formName) {
-      var _this = this
-      var loginData = {
+      let _this = this
+      let date = new Date()
+      let year = date.getFullYear()
+      let month = date.getMonth() + 1
+      let day = date.getDate()
+      let h = date.getHours()
+      let m = date.getMinutes()
+      let s = date.getSeconds()
+      if (month < 10) {
+        month = '0' + month
+      }
+      if (day < 10) {
+        day = '0' + day
+      }
+      if (h < 10) {
+        h = '0' + h
+      }
+      if (m < 10) {
+        m = '0' + m
+      }
+      if (s < 10) {
+        s = '0' + s
+      }
+      let times = year + '-' + month + '-' + day + ' ' + h + ':' + m + ':' + s
+      let loginData = {
         userAccountName: _this.ruleForm.userAccountName,
         userAccountPwd: _this.ruleForm.userAccountPwd
       }
-      // $.ajax({
-      //   url: 'http://www.linkgooo.com:8085/tv/show',
-      //   type: 'GET',
-      //   jsonpCallback: 'callback',
-      //   dataType: 'JSONP',
-      //   data: {
-      //     pagenum: 1
-      //   },
-      //   success: function (res) {
-      //     console.log(res.data)
-      //   }
-      // })
-
       _this.axios.post(this.GLOBAL.BASE_URL + '/login', loginData,
         {
           headers: {'Content-Type': 'application/json'}
         }).then((res) => {
         if (res.data.success === '200') {
           _this.loginDatas = res.data.data
+          sessionStorage.setItem('times', times)
           let role = _this.loginDatas.userAccountToken
           if (res.data.data.userAccountInfo) {
             if (res.data.data.userAccountInfo.storePkcode) {

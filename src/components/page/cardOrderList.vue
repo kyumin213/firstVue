@@ -165,10 +165,13 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCardOrderOperate/findCardOrderByStorePkid', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.cardOrderList = res.data.data
-        } else {
-          _this.$message.error('无操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)

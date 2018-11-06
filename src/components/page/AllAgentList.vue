@@ -95,9 +95,9 @@
         <el-form-item label="联系电话" prop="agentLinkmanTel">
           <el-input v-model="form.agentLinkmanTel"></el-input>
         </el-form-item>
-        <el-form-item label="结束时间" prop="agentEndtime">
-          <el-date-picker type="date" placeholder="选择时间" v-model="form.agentEndtime" value-format="yyyy-MM-dd" style="width: 100%" :picker-options="pickerOptions0"></el-date-picker>
-        </el-form-item>
+        <!--<el-form-item label="结束时间">-->
+          <!--<el-date-picker type="date" placeholder="选择时间" v-model="form.agentEndtime" value-format="yyyy-MM-dd" style="width: 100%" :picker-options="pickerOptions0"></el-date-picker>-->
+        <!--</el-form-item>-->
         <!--<el-form-item label="经度">-->
           <!--<el-input v-model="form.agentCompanyAddressLongitude"></el-input>-->
         <!--</el-form-item>-->
@@ -158,20 +158,20 @@ export default {
       agentPkid: '',
       agentDisable: '',
       form: {
-        userAccountName: '',
-        userAccountPwd: '',
-        agentName: '',
-        agentNikename: '',
-        agentType: '',
-        agentCompanyName: '',
-        agentCompanyIdnum: '',
-        agentCompanyAddress: '',
-        agentCompanyAddressLongitude: '',
-        agentCompanyAddressLatitude: '',
-        agentLinkman: '',
-        agentLinkmanTel: '',
-        agentCtime: '',
-        agentEndtime: ''
+        userAccountName: null,
+        userAccountPwd: null,
+        agentName: null,
+        agentNikename: null,
+        agentType: null,
+        agentCompanyName: null,
+        agentCompanyIdnum: null,
+        agentCompanyAddress: null,
+        agentCompanyAddressLongitude: null,
+        agentCompanyAddressLatitude: null,
+        agentLinkman: null,
+        agentLinkmanTel: null,
+        agentCtime: null,
+        agentEndtime: null
       },
       options: [
         {
@@ -213,37 +213,16 @@ export default {
         ],
         agentCtime: [
           { required: true, message: '请选择创建时间', trigger: 'change' }
-        ],
-        agentEndtime: [
-          { required: true, message: '请选择结束时间', trigger: 'change' }
         ]
+        // agentEndtime: [
+        //   { required: true, message: '请选择结束时间', trigger: 'change' }
+        // ]
       }
     }
   },
   created () {
     this.getData()
   },
-  // computed: {
-  //   data () {
-  //     return this.tableData.filter((d) => {
-  //       let isDel = false
-  //       for (let i = 0; i < this.del_list.length; i++) {
-  //         if (d.name === this.del_list[i].name) {
-  //           isDel = true
-  //           break
-  //         }
-  //       }
-  //       if (!isDel) {
-  //         if (d.address.indexOf(this.select_cate) > -1 &&
-  //             (d.name.indexOf(this.select_word) > -1 ||
-  //               d.address.indexOf(this.select_word) > -1)
-  //         ) {
-  //           return d
-  //         }
-  //       }
-  //     })
-  //   }
-  // },
   methods: {
     startDate () {
       return {
@@ -355,10 +334,13 @@ export default {
         // page: this.cur_page
         headers: {'Content-type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.allAgent = res.data.data
-        } else {
-          _this.$message.error('无操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)

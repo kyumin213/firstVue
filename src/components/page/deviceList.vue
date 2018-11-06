@@ -71,10 +71,10 @@
       <!--设置设备-->
       <el-dialog title="设置" :visible.sync="setVisible" width="40%" :close-on-click-modal="false">
         <el-form :model="setDevice" label-width="90px">
-          <el-form-item label="storePkid">
+          <el-form-item label="门店ID">
             <span>{{setDevice.storePkid}}</span>
           </el-form-item>
-          <el-form-item label="devicePkid">
+          <el-form-item label="设备ID">
             <span>{{setDevice.devicePkid}}</span>
           </el-form-item>
           <el-form-item label="用户名称">
@@ -84,8 +84,8 @@
           </el-form-item>
           <el-form-item label="设置">
             <el-radio-group v-model="setDevice.isadmin" size="medium">
+              <el-radio-button label="0">非管理员</el-radio-button>
               <el-radio-button label="1">管理员</el-radio-button>
-              <el-radio-button label="2">非管理员</el-radio-button>
             </el-radio-group>
           </el-form-item>
         </el-form>
@@ -127,19 +127,9 @@ export default {
         devicePkid: null,
         userid: null,
         type: null,
-        isadmin: '1',
+        isadmin: '0',
         userNames: null
-      },
-      options: [
-        {
-          value: 1,
-          label: '管理员'
-        },
-        {
-          value: 2,
-          label: '非管理员'
-        }
-      ]
+      }
     }
   },
   created () {
@@ -155,10 +145,13 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/storeOfDeviceOperate/storeDeviceList', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.deviceData = res.data.data
-        } else {
-          _this.$message.error(res.data.message)
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)
@@ -273,9 +266,9 @@ export default {
       let datas = {
         storePkid: _this.setDevice.storePkid,
         devicePkid: _this.setDevice.devicePkid,
-        userId: _this.setDevice.userid,
+        userid: _this.setDevice.userid,
         type: _this.setDevice.type,
-        isadmin: _this.setDevice.isadmin
+        isadmin: parseInt(_this.setDevice.isadmin)
       }
       _this.axios.post(this.GLOBAL.BASE_URL + '/storeOfDeviceOperate/confDeviceAdmin', datas, {
         headers: {'Content-Type': 'application/json'}

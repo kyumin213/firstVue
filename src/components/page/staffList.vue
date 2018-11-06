@@ -46,7 +46,7 @@
         </div>
       </div>
       <!--新增-->
-      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="38%" :close-on-click-modal="false">
+      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
         <el-form ref="form" status-icon :model="form" :rules="rules" label-width="80px" class="demo-ruleForm">
           <el-form-item label="创建时间" prop="storeStaffCtime">
             <el-date-picker type="date" placeholder="选择日期" v-model="form.storeStaffCtime" value-format="yyyy-MM-dd"
@@ -303,12 +303,15 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfStaffOperate/findStaffByStorePkid', storePkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.staffList = res.data.data.data
           _this.total = _this.data.data.total
           _this.pages = _this.data.data.pages
-        } else {
-          _this.$message.error(res.data.message)
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)

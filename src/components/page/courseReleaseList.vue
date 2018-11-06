@@ -21,7 +21,7 @@
           <!--<el-table-column type="selection" width="55"></el-table-column>-->
           <el-table-column prop="courseReleasePkid" label="pkid" align="center" width="55"></el-table-column>
           <el-table-column prop="courseReleaseName" label="课程名称" align="center"></el-table-column>
-          <el-table-column prop="storeCoachName" label="教练名称" align="center"></el-table-column>
+          <el-table-column prop="storeCoachNikename" label="教练昵称" align="center"></el-table-column>
           <el-table-column prop="courseReleaseBegtime" label="开始时间" sortable align="center"></el-table-column>
           <el-table-column prop="courseReleaseEndtime" label="结束时间" sortable align="center"></el-table-column>
           <el-table-column prop="courseReleaseTimeLength" label="有效期(月)" align="center"></el-table-column>
@@ -50,7 +50,7 @@
               <el-button size="small" type="primary" v-else-if="scope.row.courseReleasePut===0"
                          @click="putModelShow(scope.$index, scope.row)">上架
               </el-button>
-              <el-button size="small" style="margin-top: 8px" type="primary" v-if="scope.row.courseReleaseIsplan===0"
+              <el-button size="small" style="margin-top: 8px" type="primary" v-if="scope.row.courseReleaseIsplan===0 && scope.row.fitnessCourseType === 1"
                          @click="coursePlanShow(scope.$index, scope.row)">排课
               </el-button>
             </template>
@@ -64,8 +64,12 @@
       <!--新增-->
       <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
         <el-form :model="courseForm" ref="courseForm" label-width="120px" :rules="rules" class="demo-ruleForm" status-icon>
-          <el-form-item label="课程名称" prop="courseReleaseName">
-            <el-select placeholder="请选择" v-model="courseForm.courseReleaseName" @change="getCourse">
+          <el-form-item label="发布名称" prop="courseReleaseName">
+            <el-input v-model="courseForm.courseReleaseName"></el-input>
+          </el-form-item>
+          <el-form-item label="课程ID" prop="fitnessCoursePkid">
+            <!--<el-input v-model="courseForm.courseReleaseName"></el-input>-->
+            <el-select placeholder="请选择" v-model="courseForm.fitnessCoursePkid" @change="getCourse" filterable style="width: 100%">
               <el-option v-for="(item, index) in CourseReleaseList" :key="index" :label="item.fitnessCourseName" :value="index"></el-option>
             </el-select>
           </el-form-item>
@@ -78,9 +82,9 @@
             <span class="flag">多个标签用英文逗号隔开,不能超过8个字符</span>
             <el-input v-model="courseForm.courseReleaseFlag"></el-input>
           </el-form-item>
-          <el-form-item label="教练名称" prop="storeCoachPkid">
-            <el-select placeholder="请选择" filterable v-model="courseForm.storeCoachName" @change="getCode">
-              <el-option v-for="(item, index) in coachList" :key="index" :label="item.storeCoachName" :value="index"></el-option>
+          <el-form-item label="教练昵称" prop="storeCoachPkid">
+            <el-select placeholder="请选择" filterable v-model="courseForm.storeCoachNikename" @change="getCode" style="width: 100%">
+              <el-option v-for="(item, index) in coachList" :key="index" :label="item.storeCoachNikename" :value="index"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="开始时间" prop="courseReleaseBegtime">
@@ -95,7 +99,7 @@
           </el-form-item>
           <el-form-item label="人数" prop="courseReleaseMaxNum">
             <div>
-              <el-input  v-model="courseForm.courseReleaseMaxNum" type="number">
+              <el-input  v-model="courseForm.courseReleaseMaxNum" type="number" @change="value=value.replace(/[^\d]/g,'')">
                 <template slot="append">人</template>
               </el-input>
             </div>
@@ -126,7 +130,7 @@
               <template slot="append">元</template>
             </el-input>
           </el-form-item>
-          <el-form-item label="课时单价">
+          <el-form-item label="课时单价" prop="courseReleaseOneHourMoney">
             <el-input v-model="courseForm.courseReleaseOneHourMoney" type="number">
               <template slot="append">元</template>
             </el-input>
@@ -136,7 +140,6 @@
               <template slot="append">小时</template>
             </el-input>
           </el-form-item>
-
           <el-form-item label="有效期" prop="courseReleaseTimeLength">
             <el-input v-model="courseForm.courseReleaseTimeLength" type="number">
               <template slot="append">月</template>
@@ -149,7 +152,7 @@
             </el-radio-group>
           </el-form-item>
           <!--<el-form-item label="档位" v-if="courseType"></el-form-item>-->
-          <div v-for="(item, index) in PriceLevelList" :key="item.key" v-if="courseType">
+          <div v-for="(item, index) in courseForm.PriceLevelList" :key="item.key" v-if="courseType">
             <el-form-item label="档位">
               <el-col :span="2"><span>{{index+1}}</span></el-col>
               <el-col :span="7"><span>课时</span><el-input v-model="item.courseTotal" @change="totalCourse(index)" ></el-input></el-col>
@@ -256,11 +259,6 @@ export default {
   name: 'courseReleaseList',
   data () {
     return {
-      PriceLevelList: [
-        {courseTotal: '', totalPrice: '', courseUnit: ''},
-        {courseTotal: '', totalPrice: '', courseUnit: ''},
-        {courseTotal: '', totalPrice: '', courseUnit: ''}
-      ],
       courseType: false,
       priceMes: false,
       errorMes: false,
@@ -293,6 +291,12 @@ export default {
       planVisible: false,
       dailogTitleType: '',
       courseForm: {
+        PriceLevelList: [
+          {courseTotal: '', totalPrice: '', courseUnit: ''},
+          {courseTotal: '', totalPrice: '', courseUnit: ''},
+          {courseTotal: '', totalPrice: '', courseUnit: ''}
+        ],
+        courseReleaseName: null,
         courseReleaseBegtime: null,
         courseReleaseEndtime: null,
         courseReleaseMaxNum: null,
@@ -311,20 +315,22 @@ export default {
         fitnessCoursePkid: null,
         fitnessCoursePkcode: null,
         fitnessCourseType: null,
-        courseReleaseName: null,
         courseReleaseFlag: null,
-        courseReleasePriceLevel: null,
-        courseTotal: null,
-        courseTotal2: null,
-        courseTotal3: null,
-        totalPrice: null,
-        totalPrice2: null,
-        totalPrice3: null,
-        courseUnit: null,
-        courseUnit2: null,
-        courseUnit3: null
+        courseReleasePriceLevel: null
+        // courseTotal: null,
+        // courseTotal2: null,
+        // courseTotal3: null,
+        // totalPrice: null,
+        // totalPrice2: null,
+        // totalPrice3: null,
+        // courseUnit: null,
+        // courseUnit2: null,
+        // courseUnit3: null
       },
       rules: {
+        fitnessCoursePkid: [
+          { required: true, message: '请选择课程ID', trigger: 'change' }
+        ],
         courseReleaseBegtime: [
           { required: true, message: '请输入开始时间', trigger: 'change' }
         ],
@@ -338,20 +344,24 @@ export default {
           { required: true, message: '请选择教练名称', trigger: 'change' }
         ],
         courseReleaseMaxNum: [
-          { required: true, message: '请输入人数', trigger: 'change' }
+          { required: true, message: '请输入人数', trigger: 'change' },
+          {validator: vali.numbers, trigger: 'change'}
         ],
         courseReleaseMoney: [
           { required: true, message: '请输入原价', trigger: 'change' },
-          { max: 4, message: '不能超过两位小数点', trigger: 'change' }
+          {validator: vali.courseLength, trigger: 'change'}
         ],
         courseReleaseTotalHour: [
-          { required: true, message: '请输入总课时', trigger: 'change' }
+          { required: true, message: '请输入总课时', trigger: 'change' },
+          {validator: vali.numbers, trigger: 'change'}
         ],
         courseReleaseTotalHourMoney: [
-          { required: true, message: '请输入总价', trigger: 'change' }
+          { required: true, message: '请输入总价', trigger: 'change' },
+          {validator: vali.courseLength, trigger: 'change'}
         ],
         courseReleaseOneHour: [
-          { required: true, message: '请输入每个课时时间', trigger: 'change' }
+          { required: true, message: '请输入每个课时时间', trigger: 'change' },
+          {validator: vali.courseLength, trigger: 'change'}
         ],
         courseReleaseTimeLength: [
           { required: true, message: '请输入有效期', trigger: 'change' },
@@ -362,11 +372,19 @@ export default {
           {validator: vali.flagNum, trigger: 'change'}
         ],
         courseTotal: [
-          { required: true, message: '请输入课时', trigger: 'change' }
+          { required: true, message: '请输入课时', trigger: 'change' },
+          {validator: vali.courseLength, trigger: 'change'}
+
         ],
         totalPrice: [
-          { required: true, message: '请输入售价', trigger: 'change' }
+          { required: true, message: '请输入售价', trigger: 'change' },
+          {validator: vali.courseLength, trigger: 'change'}
+
           // {validator: this.totalMoney, trigger: 'blur'}
+        ],
+        courseReleaseOneHourMoney: [
+          { required: true, message: '请输入单价', trigger: 'change' },
+          {validator: vali.courseLength, trigger: 'change'}
         ]
       },
       planForm: {
@@ -395,16 +413,16 @@ export default {
   },
   methods: {
     // 添加档位
-    addLeavel () {
-      this.PriceLevelList.push({courseTotal: '', type: 'text', totalPrice: '', courseUnit: ''})
-    },
+    // addLeavel () {
+    //   this.PriceLevelList.push({courseTotal: '', type: 'text', totalPrice: '', courseUnit: ''})
+    // },
     // 总价算单价
     totalMoney (index) {
       let _this = this
       _this.index = index
       let totalHouse = _this.courseForm.courseReleaseTotalHourMoney
-      let allCourse = _this.PriceLevelList[index].courseTotal
-      let total = _this.PriceLevelList[index].totalPrice
+      let allCourse = _this.courseForm.PriceLevelList[index].courseTotal
+      let total = _this.courseForm.PriceLevelList[index].totalPrice
       if (parseInt(total) > parseInt(totalHouse)) {
         _this.priceMes = true
         return false
@@ -412,7 +430,7 @@ export default {
         _this.priceMes = false
         if (total !== '' || total != null || total !== undefined) {
           let unit = (total / allCourse).toFixed(2)
-          _this.PriceLevelList[index].courseUnit = unit
+          _this.courseForm.PriceLevelList[index].courseUnit = unit
         }
       }
     },
@@ -421,8 +439,8 @@ export default {
       let _this = this
       _this.index = index
       let courseHouse = _this.courseForm.courseReleaseTotalHour
-      let allCourse = _this.PriceLevelList[index].courseTotal
-      let total = _this.PriceLevelList[index].totalPrice
+      let allCourse = _this.courseForm.PriceLevelList[index].courseTotal
+      let total = _this.courseForm.PriceLevelList[index].totalPrice
       if (parseInt(allCourse) > parseInt(courseHouse)) {
         _this.errorMes = true
         return false
@@ -430,7 +448,7 @@ export default {
         _this.errorMes = false
         if (allCourse !== '' || allCourse != null || allCourse !== undefined) {
           let unit = (total / allCourse).toFixed(2)
-          _this.PriceLevelList[index].courseUnit = unit
+          _this.courseForm.PriceLevelList[index].courseUnit = unit
         }
       }
     },
@@ -447,12 +465,15 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCourseReleaseOperate/findCourseReleaseByStorePkid', storeDate, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.courseReleaseData = res.data.data.data
           _this.total = res.data.data.total
           _this.pages = res.data.data.pages
-        } else {
-          _this.$message.error('无操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error(res.data.message)
         }
       }).catch((error) => {
         console.log(error)
@@ -602,7 +623,7 @@ export default {
       _this.courseForm.fitnessCoursePkcode = code
       _this.courseForm.fitnessCoursePkid = item.fitnessCoursePkid
       _this.courseForm.fitnessCourseType = item.fitnessCourseType
-      _this.courseForm.courseReleaseName = item.fitnessCourseName
+      // _this.courseForm.courseReleaseName = item.fitnessCourseName
       _this.courseType = item.fitnessCourseType
       if (item.fitnessCourseType === 2) {
         _this.courseType = true
@@ -635,10 +656,13 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCourseReleaseOperate/fitnessCourseList', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.CourseReleaseList = res.data.data
-        } else {
-          _this.$message.error('没有操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)
@@ -723,11 +747,11 @@ export default {
       console.log(item.fitnessCourseType)
       console.log(_this.courseType)
       if (item.courseReleasePriceLevel === '' || item.courseReleasePriceLevel === 'undefined' || item.courseReleasePriceLevel === null) {
-        _this.PriceLevelList = [{courseTotal: '', totalPrice: '', courseUnit: ''},
+        _this.courseForm.PriceLevelList = [{courseTotal: '', totalPrice: '', courseUnit: ''},
           {courseTotal: '', totalPrice: '', courseUnit: ''},
           {courseTotal: '', totalPrice: '', courseUnit: ''}]
       } else {
-        _this.PriceLevelList = item.courseReleasePriceLevel
+        _this.courseForm.PriceLevelList = item.courseReleasePriceLevel
       }
 
       // const cardId = _this.cardList[index]
@@ -750,8 +774,9 @@ export default {
         storeCoachPkcode: item.storeCoachPkcode,
         // cardPkid: cardId.handyCardPkid,
         courseReleaseName: item.courseReleaseName,
-        storeCoachName: item.storeCoachName,
-        courseReleaseFlag: item.courseReleaseFlag
+        storeCoachNikename: item.storeCoachNikename,
+        courseReleaseFlag: item.courseReleaseFlag,
+        PriceLevelList: item.courseReleasePriceLevel
       }
     },
     // 卡发布弹窗
@@ -799,6 +824,7 @@ export default {
       let _this = this
       let storePkid = sessionStorage.getItem('storePkid')
       let storePkcode = sessionStorage.getItem('storePkcode')
+      let levels = _this.courseForm.PriceLevelList
       // let flags = _this.courseForm.courseReleaseFlag
       // console.log(flags)
       // if (flags !== null || flags !== '' || flags !== undefined) {
@@ -816,19 +842,21 @@ export default {
       // } else {
       //   _this.PriceLevelList = JSON.stringify(_this.PriceLevelList)
       // }
+      console.log(_this.courseType)
       if (_this.courseType) {
-        let total1 = _this.PriceLevelList[0].totalPrice
-        let total2 = _this.PriceLevelList[0].courseTotal
-        let total3 = _this.PriceLevelList[0].courseUnit
+        let total1 = _this.courseForm.PriceLevelList[0].totalPrice
+        let total2 = _this.courseForm.PriceLevelList[0].courseTotal
+        let total3 = _this.courseForm.PriceLevelList[0].courseUnit
         if (total1 === '' || total1 === undefined || total2 === '' || total2 === undefined || total3 === '' || total3 === undefined) {
-          _this.PriceLevelList = null
+          _this.courseForm.PriceLevelList = levels
         } else {
-          _this.PriceLevelList = JSON.stringify(_this.PriceLevelList)
+          _this.courseForm.PriceLevelList = levels
         }
-      } else {
-        _this.PriceLevelList = null
       }
-      console.log(_this.courseForm.courseReleaseBegtime)
+      // else {
+      //   _this.courseForm.PriceLevelList = _this.courseForm.PriceLevelList
+      // }
+      console.log(_this.courseForm.PriceLevelList)
       let formData = {
         courseReleaseBegtime: _this.courseForm.courseReleaseBegtime,
         courseReleaseEndtime: _this.courseForm.courseReleaseEndtime,
@@ -852,7 +880,7 @@ export default {
         fitnessCourseType: parseInt(_this.courseForm.fitnessCourseType),
         courseReleaseName: _this.courseForm.courseReleaseName,
         courseReleaseFlag: _this.courseForm.courseReleaseFlag + '',
-        courseReleasePriceLevel: _this.PriceLevelList
+        courseReleasePriceLevel: JSON.stringify(_this.courseForm.PriceLevelList)
       }
       _this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -879,6 +907,7 @@ export default {
       let _this = this
       let index = _this.idx
       const item = _this.courseReleaseData[index]
+      let levels = _this.courseForm.PriceLevelList
       // const items = _this.CourseReleaseList[index]
       // let levels = {
       //   courseTotal: _this.courseForm.courseTotal,
@@ -886,16 +915,14 @@ export default {
       //   courseUnit: _this.courseForm.courseUnit
       // }
       if (item.fitnessCourseType === 2) {
-        let total1 = _this.PriceLevelList[0].totalPrice
-        let total2 = _this.PriceLevelList[0].courseTotal
-        let total3 = _this.PriceLevelList[0].courseUnit
+        let total1 = _this.courseForm.PriceLevelList[0].totalPrice
+        let total2 = _this.courseForm.PriceLevelList[0].courseTotal
+        let total3 = _this.courseForm.PriceLevelList[0].courseUnit
         if (total1 === '' || total1 === undefined || total2 === '' || total2 === undefined || total3 === '' || total3 === undefined) {
-          _this.PriceLevelList = null
+          _this.courseForm.PriceLevelList = levels
         } else {
-          _this.PriceLevelList = JSON.stringify(_this.PriceLevelList)
+          _this.courseForm.PriceLevelList = levels
         }
-      } else {
-        _this.PriceLevelList = null
       }
       let editData = {
         courseReleasePkid: item.courseReleasePkid,
@@ -919,7 +946,7 @@ export default {
         fitnessCourseType: parseInt(_this.courseForm.fitnessCourseType),
         courseReleaseName: _this.courseForm.courseReleaseName,
         courseReleaseFlag: _this.courseForm.courseReleaseFlag,
-        courseReleasePriceLevel: _this.PriceLevelList
+        courseReleasePriceLevel: JSON.stringify(_this.courseForm.PriceLevelList)
       }
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCourseReleaseOperate/updateCourseRelease', editData, {
         headers: {'Content-Type': 'application/json'}

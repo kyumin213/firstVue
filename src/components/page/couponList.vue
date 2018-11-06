@@ -97,10 +97,13 @@ export default {
       _this.axios.post(_this.GLOBAL.BASE_URL + '/agentOfCouponOperate/findCouponByAgentPkid', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.couponData = res.data.data
-        } else {
-          _this.$message.error('获取失败')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)

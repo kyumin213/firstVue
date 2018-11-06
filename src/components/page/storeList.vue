@@ -50,7 +50,7 @@
       <!--</div>-->
     </div>
     <!--新增-->
-    <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="40%" :close-on-click-modal="false">
+    <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
       <el-form ref="form" :model="form" label-width="100px" status-icon :rules="rules" class="demo-ruleForm">
         <el-form-item label="创建时间" prop="storeCtime">
           <el-date-picker type="date" placeholder="选择日期" v-model="form.storeCtime" value-format="yyyy-MM-dd"
@@ -354,18 +354,13 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfStoreOperate/findStoreByAgentPkcode', agentPkcode, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.storeList = res.data.data
-          // _this.totalPage = _this.storeList.length
-          // if (_this.totalPage > _this.pageSize) {
-          //   for (let index = 0; index < _this.pageSize; index++) {
-          //     _this.tableDataEnd.push(_this.storeList[index])
-          //   }
-          // } else {
-          //   _this.tableDataEnd = _this.storeList
-          // }
-        } else {
-          _this.$message.error('无操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)

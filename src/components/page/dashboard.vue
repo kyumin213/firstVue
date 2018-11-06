@@ -12,8 +12,8 @@
                   <div>{{role}}</div>
                 </div>
               </div>
-              <div class="user-info-list">上次登录时间：<span>2018-10-19</span></div>
-              <div class="user-info-list">上次登录地点：<span>深圳</span></div>
+              <div class="user-info-list">登录时间：<span>{{times}}</span></div>
+              <div class="user-info-list">登录地点：<span>深圳</span></div>
             </el-card>
             <el-card shadow="hover">
               <el-row :gutter="20" class="mgb20">
@@ -57,7 +57,11 @@
       </el-col>
       <el-col :span="16">
         <el-card shadow="hover" :body-style="{ height: '100%'}">
+          <!--<router-link to="courseOrderList">跳转</router-link>-->
+          <el-button @click="toLogin" type="primary">跳转登录</el-button>
           <div>内容完善中</div>
+          <!--<iframe src='../../../static/index1.html' width="1200" height="300" frameborder="0" scrolling="auto" v-show="hashBd"></iframe>-->
+          <iframe src='../../../static/index1.html' width="103%" height="400" frameborder="0" scrolling="auto" id="firSrc"></iframe>
           <!--<dataShow></dataShow>-->
           <!--<div slot="header" class="clearfix">-->
             <!--<span>待办事项</span>-->
@@ -94,7 +98,10 @@ export default {
   name: 'dashboard',
   data () {
     return {
+      // hashBd: false,
+      srcs: 'http://www.baidu.com',
       name: sessionStorage.getItem('userName'),
+      times: sessionStorage.getItem('times'),
       collapse: false,
       todoList: [
         {
@@ -123,11 +130,42 @@ export default {
     role () {
       return this.name === 'admin' ? '超级管理员' : '普通用户'
     }
+
+  },
+  mounted () {
+    let fir = document.getElementById('firSrc')
+    let token = sessionStorage.getItem('token')
+    fir.src = '../../../static/index1.html?token=' + token
+    // console.log(fir.src)
   },
   created () {
     bus.$on('collapse', msg => {
       this.collapse = msg
     })
+    // this.getSrc()
+  },
+  methods: {
+    getSrc () {
+      let _this = this
+      if (_this.name === 'admin') {
+        _this.hashBd = true
+      } else {
+        _this.hashBd = false
+      }
+    },
+    toLogin () {
+      let fir = document.getElementById('firSrc')
+      let token = sessionStorage.getItem('token')
+      fir.src = 'http://www.baidu.com?token=' + token
+      console.log(fir.src)
+      // let _this = this
+      // if (_this.hashBd) {
+      //   _this.hashBd = false
+      // } else {
+      //   _this.hashBd = true
+      // }
+      // this.$router.push('/login')
+    }
   }
 }
 

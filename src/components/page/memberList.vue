@@ -47,10 +47,10 @@
         </div>
       </div>
       <!--新增-->
-      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="38%" :close-on-click-modal="false">
+      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
         <el-form ref="form" status-icon :model="form" label-width="80px" :rules="rules" class="demo-ruleForm">
           <el-form-item label="创建时间" prop="storeMemberCtime">
-            <el-date-picker type="date" placeholder="选择日期" v-model="form.storeMemberCtime" value-format="yyyy-MM-dd"
+            <el-date-picker type="datetime" placeholder="选择日期" v-model="form.storeMemberCtime" value-format="yyyy-MM-dd HH-mm-ss"
                             style="width: 100%;" :picker-options="pickerOptions0"></el-date-picker>
           </el-form-item>
           <el-form-item label="手机号" prop="storeMemberPhone">
@@ -155,26 +155,6 @@ export default {
   created () {
     this.getData()
   },
-  computed: {
-    // data () {
-    //   return this.tableDataEnd.filter((d) => {
-    //     let isDel = false
-    //     for (let i = 0; i < this.del_list.length; i++) {
-    //       if (d.storeMemberName === this.del_list[i].storeMemberName) {
-    //         isDel = true
-    //         break
-    //       }
-    //     }
-    //     if (!isDel) {
-    //       if ((d.storeMemberName.indexOf(this.select_word) > -1 ||
-    //         d.storeMemberPhone.indexOf(this.select_word) > -1)
-    //       ) {
-    //         return d
-    //       }
-    //     }
-    //   })
-    // }
-  },
   methods: {
     search () {
       let _this = this
@@ -195,13 +175,13 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfMemberOperate/findMemberByStorePkid', searchData, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.memberList = res.data.data.data
-          // _this.total = res.data.data.total
-          // _this.pages = res.data.data.pages
-          // _this.getData()
-        } else {
-          _this.$message.error('无操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)
@@ -298,20 +278,15 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfMemberOperate/findMemberByStorePkid', storePkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.memberList = res.data.data.data
           _this.total = res.data.data.total
           _this.pages = res.data.data.pages
-          // _this.totalPage = _this.memberList.length
-          // if (_this.totalPage > _this.pageSize) {
-          //   for (let index = 0; index < _this.pageSize; index++) {
-          //     _this.tableDataEnd.push(_this.memberList[index])
-          //   }
-          // } else {
-          //   _this.tableDataEnd = _this.memberList
-          // }
-        } else {
-          _this.$message.error('无操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)

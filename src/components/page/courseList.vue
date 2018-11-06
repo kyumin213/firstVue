@@ -7,12 +7,12 @@
       </div>
       <div class="container">
         <el-table :data="courseData" border style="width: 100%" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column prop="fitnessCoursePkid" label="pkid" align="center"></el-table-column>
+          <!--<el-table-column type="selection" width="55"></el-table-column>-->
+          <el-table-column prop="fitnessCoursePkid" label="pkid" align="center" width="80"></el-table-column>
           <el-table-column prop="fitnessCourseName" label="课程名称" align="center"></el-table-column>
           <el-table-column prop="fitnessCourseType" label="课程类型" align="center" :formatter="ifendcase"></el-table-column>
           <el-table-column prop="fitnessCourseDisable" label="是否禁用" align="center" :formatter="disableTxt"></el-table-column>
-          <el-table-column label="操作" align="center" width="250">
+          <el-table-column label="操作" align="center" width="350">
             <template slot-scope="scope">
               <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
               <el-button size="small" type="danger" @click="handleDel(scope.$index, scope.row)">删除</el-button>
@@ -30,7 +30,7 @@
       </div>
       <!--新增-->
       <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
-        <el-form :model="form" label-width="80px" :rules="rules" class="demo-ruleForm" status-icon>
+        <el-form :model="form" ref="form" label-width="80px" :rules="rules" class="demo-ruleForm" status-icon>
           <el-form-item label="课程名称" prop="fitnessCourseName">
             <el-input v-model="form.fitnessCourseName" style="width: 75%"></el-input>
           </el-form-item>
@@ -49,7 +49,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="addVisible=false">取消</el-button>
-          <el-button type="primary" @click="addCard(form)" v-if="!editVisible">确定</el-button>
+          <el-button type="primary" @click="addCard('form')" v-if="!editVisible">确定</el-button>
           <el-button type="primary" @click="editCard" v-else>确定</el-button>
         </span>
       </el-dialog>
@@ -85,15 +85,15 @@
           <el-form-item label="适宜人群" prop="SuitablePopulation">
             <el-input type="textarea" v-model="addCourse.SuitablePopulation"></el-input>
           </el-form-item>
-          <el-form-item label="温馨提示">
-            <!--<el-input type="textarea" v-model="addCourse.Reminder"></el-input>-->
+          <el-form-item label="温馨提示" prop="Reminder">
+            <el-input type="text" v-model="addCourse.Reminder" style="display: none;"></el-input>
           </el-form-item>
           <div v-for="(item, index) in ReminderList" :key="item.key">
-            <el-form-item label="提示" >
+            <el-form-item label="提示">
               <!--<el-input type="textarea" v-model="information.goodCourse"></el-input>-->
               <!--<el-col :span="2"> <span>课程</span></el-col>-->
               <el-col :span="2"> <span>{{index+1}}</span></el-col>
-              <el-col :span="16"><el-input type="text" v-model="item.text"></el-input></el-col>
+              <el-col :span="16"><el-input type="text" v-model="item.text" @change="getReminder"></el-input></el-col>
               <el-button type="danger" size="small" style="margin-left: 5px" @click="removeRowGoods(item, index)">删除</el-button>
             </el-form-item>
           </div>
@@ -102,7 +102,7 @@
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="addCourse=false">取消</el-button>
+          <el-button @click="addCourseModel=false">取消</el-button>
           <el-button type="primary" @click="addCourseCon('addCourse')">确定</el-button>
         </span>
       </el-dialog>
@@ -118,6 +118,7 @@ export default {
       ReminderList: [
         {text: '', type: 'text'}
       ],
+      firRem: null,
       courseData: [],
       multipleSelection: [],
       courseConData: [],
@@ -131,16 +132,16 @@ export default {
       dailogTitleType: '',
       message: '',
       form: {
-        fitnessCourseName: '',
-        fitnessCourseType: '1',
-        fitnessCourseDisable: '1'
+        fitnessCourseName: null,
+        fitnessCourseType: '1'
+        // fitnessCourseDisable: '1'
       },
       addCourse: {
-        fitnessCourseintroduce: '',
-        trainingEffect: '',
-        SuitablePopulation: '',
-        // Reminder: '',
-        TopimgUrl: ''
+        fitnessCourseintroduce: null,
+        trainingEffect: null,
+        SuitablePopulation: null,
+        TopimgUrl: null,
+        Reminder: null
       },
       rules: {
         fitnessCourseName: [
@@ -171,6 +172,11 @@ export default {
     this.getData()
   },
   methods: {
+    getReminder () {
+      let _this = this
+      let reminder = _this.ReminderList[0].text
+      _this.addCourse.Reminder = reminder
+    },
     filterTag (value, row) {
       return row.fitnessCourseType === value
     },
@@ -207,10 +213,13 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfFitnessCourseOperate/findFitnessCourseByAgentPkid', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.courseData = res.data.data
-        } else {
-          _this.$message.error('无操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)
@@ -267,6 +276,7 @@ export default {
       // }
       if (item.fitnessCourseContext === '' || item.fitnessCourseContext === 'undefined' || item.fitnessCourseContext === null) {
         _this.ReminderList = [{text: '', type: 'text'}]
+        _this.firRem = null
       } else {
         let dataType = item.fitnessCourseContext
         let con = null
@@ -277,12 +287,14 @@ export default {
         }
         _this.conTxt = con
         _this.ReminderList = _this.conTxt.Reminder
+        let firRem = _this.conTxt.Reminder[0].text
+        _this.firRem = firRem
       }
       _this.addCourse = {
         fitnessCourseintroduce: _this.conTxt.fitnessCourseintroduce,
         trainingEffect: _this.conTxt.trainingEffect,
         SuitablePopulation: _this.conTxt.SuitablePopulation,
-        // Reminder: '',
+        Reminder: _this.firRem,
         TopimgUrl: item.fitnessCourseCoverimg
       }
     },
@@ -296,8 +308,8 @@ export default {
       const item = _this.courseData[index]
       _this.form = {
         fitnessCourseName: item.fitnessCourseName,
-        fitnessCourseType: item.fitnessCourseType,
-        fitnessCourseDisable: item.fitnessCourseDisable
+        fitnessCourseType: item.fitnessCourseType
+        // fitnessCourseDisable: item.fitnessCourseDisable
       }
     },
     // 删除弹窗
@@ -434,7 +446,7 @@ export default {
         fitnessCourseintroduce: _this.addCourse.fitnessCourseintroduce,
         trainingEffect: _this.addCourse.trainingEffect,
         SuitablePopulation: _this.addCourse.SuitablePopulation,
-        Reminder: _this.ReminderList
+        Reminder: _this.addCourse.ReminderList
       }
       let courseData = {
         fitnessCourseContext: courseLists,
@@ -472,8 +484,8 @@ export default {
     margin-bottom: 20px;
   }
   .topImg{
-    width: 300px;
-    height: 170px;
+    width: 100%;
+    /*height: 170px;*/
     display: block;
   }
 </style>

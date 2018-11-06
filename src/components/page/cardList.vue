@@ -23,7 +23,7 @@
         </el-table>
       </div>
       <!--新增-->
-      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="35%" :close-on-click-modal="false">
+      <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
         <el-form :model="form" ref="form" label-width="80px" :rules="rules" class="demo-ruleForm" status-icon>
           <el-form-item label="卡图片" prop="handyCardImgurl">
             <img v-if="form.handyCardImgurl" :src="form.handyCardImgurl" class="avatar" >
@@ -36,7 +36,7 @@
             <el-input v-model="form.handyCardMoney"></el-input>
           </el-form-item>
           <el-form-item label="卡类型" prop="handyCardType">
-            <el-select v-model="form.handyCardType" placeholder="请选择">
+            <el-select v-model="form.handyCardType" placeholder="请选择" style="width: 100%">
               <el-option v-for="item in options" :key="item.value" :value="item.value" :label="item.label"></el-option>
             </el-select>
           </el-form-item>
@@ -232,10 +232,13 @@ export default {
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfCardOperate/findCardByAgentPkid', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
+        let mes = res.data.message
         if (res.data.success === '200') {
           _this.cardData = res.data.data
-        } else {
-          _this.$message.error('无操作权限')
+        } else if (mes === '无操作权限') {
+          this.$router.push('/login')
+          sessionStorage.clear()
+          // _this.$message.error('无操作权限')
         }
       }).catch((error) => {
         console.log(error)
