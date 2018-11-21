@@ -1,5 +1,6 @@
+<!--suppress ALL -->
 <template>
-  <div class="table">
+  <div>
     <!--<div class="crumbs">-->
       <!--<el-breadcrumb separator="/">-->
         <!--<el-breadcrumb-item><i class="el-icon-tickets"></i> 基础表格</el-breadcrumb-item>-->
@@ -10,7 +11,7 @@
         <el-button class="addBtn" @click="addModelOpen()">创建商户</el-button>
       </el-row>
     </div>
-    <div class="container">
+    <div class="containers">
       <!--<div class="handle-box">-->
         <!--<el-button type="primary" icon="delete" class="handle-del mr10" @click="delAll">批量删除</el-button>-->
         <!--<el-select v-model="select_cate" placeholder="筛选省份" class="handle-select mr10">-->

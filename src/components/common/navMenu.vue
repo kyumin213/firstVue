@@ -61,6 +61,7 @@
         <template slot="title">{{userName}}</template>
         <el-menu-item index="login" @click="loginOut">退出</el-menu-item>
       </el-submenu>
+      <el-menu-item index="test"><i class="el-icon-tickets"></i>测试列表</el-menu-item>
     </el-menu>
   </div>
 </template>

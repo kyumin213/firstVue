@@ -7,12 +7,24 @@
 <style>
   @import '../static/css/main.css';
   @import '../static/css/color-dark.css';
-
+body{
+  font-size: 13px;
+}
   body .el-table th.gutter{
     display: table-cell!important;
   }
   body .el-table colgroup.gutter {
     display: table-cell !important;
+  }
+  .containers{
+    width: 100%;
+    padding: 30px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  .row{
+    width: 100%;
   }
   .del-dialog-cnt{
     text-align: center
@@ -54,5 +66,9 @@
   }
   .el-upload--text{
     width: 178px;
+  }
+  .paginations{
+    text-align: center;
+    margin-top: 20px;
   }
 </style>

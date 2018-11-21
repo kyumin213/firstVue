@@ -7,17 +7,17 @@ import axios from 'axios'
 import vuex from 'vuex'
 import ElementUI from 'element-ui'
 import VueResource from 'vue-resource'
-import VueJsonp from 'vue-jsonp'
+// import VueJsonp from 'vue-jsonp'
 import './validate'
-import 'jquery'
+// import $ from 'jquery'
 import global_ from '@/components/global.vue'
-import BMap from 'BMap'
+// import BMap from 'BMap'
 // import store from './components/store/store'
 import 'babel-polyfill'
 import 'element-ui/lib/theme-chalk/index.css'
 // Vue.config.debug = true
 // Vue.config.productionTip = false
-Vue.use(ElementUI, {size: 'small'}, VueResource, vuex, VueJsonp, BMap)
+Vue.use(ElementUI, {size: 'small'}, VueResource, vuex)
 // axios.defaults.baseURL = process.env.API_ROOT
 // console.log(process.env.API_ROOT)
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -25,8 +25,8 @@ axios.defaults.headers.common['token'] = sessionStorage.getItem('token')
 Vue.prototype.axios = axios
 Vue.prototype.GLOBAL = global_
 if (process.env.NODE_ENV === 'production') {
-  // Vue.prototype.GLOBAL.BASE_URL = 'http://112.74.169.46:8094' // 测试接口
-  Vue.prototype.GLOBAL.BASE_URL = 'http://www.handyfitness.com.cn:8094' // 正式接口
+  Vue.prototype.GLOBAL.BASE_URL = 'http://112.74.169.46:8094' // 测试接口
+  // Vue.prototype.GLOBAL.BASE_URL = 'http://www.handyfitness.com.cn:8094' // 正式接口
 } else {
   // Vue.prototype.GLOBAL.BASE_URL = '开发测试地址'
   Vue.prototype.GLOBAL.BASE_URL = '/api'

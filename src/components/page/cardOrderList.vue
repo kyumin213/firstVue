@@ -5,7 +5,7 @@
           <el-button class="addBtn" @click="addModelOpen()">创建充值卡订单</el-button>
         </el-row>
       </div>
-      <div class="container">
+      <div class="containers">
         <el-table :data="cardOrderList" border style="width: 100%">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="rechargeaCardReleasePkid" label="pkid" align="center" width="60"></el-table-column>

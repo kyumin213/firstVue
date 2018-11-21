@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="containers">
       <el-table :data="deviceManagerData" border style="width: 100%">
         <!--<el-table-column type="selection" width="55"></el-table-column>-->
         <!--<el-table-column prop="storePkid" label="门店ID" align="center"></el-table-column>-->

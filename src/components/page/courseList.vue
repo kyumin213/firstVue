@@ -5,29 +5,48 @@
           <el-button class="addBtn" @click="addModelOpen()">创建课程</el-button>
         </el-row>
       </div>
-      <div class="container">
-        <el-table :data="courseData" border style="width: 100%" @selection-change="handleSelectionChange">
-          <!--<el-table-column type="selection" width="55"></el-table-column>-->
-          <el-table-column prop="fitnessCoursePkid" label="pkid" align="center" width="80"></el-table-column>
-          <el-table-column prop="fitnessCourseName" label="课程名称" align="center"></el-table-column>
-          <el-table-column prop="fitnessCourseType" label="课程类型" align="center" :formatter="ifendcase"></el-table-column>
-          <el-table-column prop="fitnessCourseDisable" label="是否禁用" align="center" :formatter="disableTxt"></el-table-column>
-          <el-table-column label="操作" align="center" width="350">
-            <template slot-scope="scope">
-              <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-              <el-button size="small" type="danger" @click="handleDel(scope.$index, scope.row)">删除</el-button>
-              <el-button size="small" type="info" @click="disableStoreShow(scope.$index, scope.row)"
-                         v-if="scope.row.fitnessCourseDisable===1">禁用
-              </el-button>
-              <el-button size="small" type="primary" v-else-if="scope.row.fitnessCourseDisable===0"
-                         @click="disableStoreShow(scope.$index, scope.row)">启用
-              </el-button>
-              <el-button size="small" style="margin-top: 10px" type="primary" v-if="scope.row.fitnessCourseDisable===1"
-                         @click="addCourseShow(scope.$index, scope.row)">新增课程内容</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
+       <div class="containers">
+         <div style="display: inline-block"> 查找：</div>
+         <el-input v-model="search" style="display: inline-block;width: 300px;margin-bottom: 20px"
+                   placeholder="请输入查找内容">
+         </el-input>
+         <el-table :data="tables.slice((currentPage - 1) * pagesize, currentPage * pagesize)" border tooltip-effect="dark" stripe style="width: 100%" @selection-change="handleSelectionChange">
+           <!--<el-table-column type="selection" width="55"></el-table-column>-->
+           <el-table-column prop="fitnessCoursePkid" label="pkid" align="center" sortable width="80">
+           </el-table-column>
+           <el-table-column prop="fitnessCourseName" label="课程名称" align="center" sortable>
+           </el-table-column>
+           <el-table-column prop="fitnessCourseType" label="课程类型" align="center" sortable :formatter="ifendcase">
+           </el-table-column>
+           <el-table-column prop="fitnessCourseDisable" label="是否禁用" align="center" sortable :formatter="disableTxt"></el-table-column>
+           <el-table-column label="操作" align="center" width="350">
+             <template slot-scope="scope">
+               <!--<el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>-->
+               <el-button size="small" type="danger" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+               <el-button size="small" type="info" @click="disableStoreShow(scope.$index, scope.row)"
+                          v-if="scope.row.fitnessCourseDisable===1">禁用
+               </el-button>
+               <el-button size="small" type="primary" v-else-if="scope.row.fitnessCourseDisable===0"
+                          @click="disableStoreShow(scope.$index, scope.row)">启用
+               </el-button>
+               <el-button size="small" type="primary" v-if="scope.row.fitnessCourseDisable===1"
+                          @click="addCourseShow(scope.$index, scope.row)">新增课程内容</el-button>
+             </template>
+           </el-table-column>
+         </el-table>
+         <div class="paginations center">
+           <el-pagination background
+                          @size-change="handleSizeChange"
+                          @current-change="handleCurrentChange"
+                          :current-page="currentPage"
+                          :page-sizes="[5, 10, 20, 40]"
+                          :page-size="pagesize"
+                          layout="total, sizes, prev, pager, next, jumper"
+                          :total="total">
+           </el-pagination>
+         </div>
+       </div>
+
       <!--新增-->
       <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="30%" :close-on-click-modal="false">
         <el-form :model="form" ref="form" label-width="80px" :rules="rules" class="demo-ruleForm" status-icon>
@@ -86,7 +105,7 @@
             <el-input type="textarea" v-model="addCourse.SuitablePopulation"></el-input>
           </el-form-item>
           <el-form-item label="温馨提示" prop="Reminder">
-            <el-input type="text" v-model="addCourse.Reminder" style="display: none;"></el-input>
+            <el-input type="text" v-model="addCourse.Reminder" style="display: none"></el-input>
           </el-form-item>
           <div v-for="(item, index) in ReminderList" :key="item.key">
             <el-form-item label="提示">
@@ -115,6 +134,11 @@ export default {
   name: 'courseList',
   data () {
     return {
+      currentPage: 1,
+      pagesize: 5,
+      search: '',
+      fitnessCoursePkid: '',
+      fitnessCourseDisable: 0,
       ReminderList: [
         {text: '', type: 'text'}
       ],
@@ -171,18 +195,51 @@ export default {
   created () {
     this.getData()
   },
+
+  computed: {
+    // 模糊查询
+    tables () {
+      const search = this.search
+      if (search) {
+        return this.courseData.filter(data => {
+          return Object.keys(data).some(key => {
+            return String(data[key]).toLowerCase().indexOf(search) > -1
+          })
+        })
+      }
+      return this.courseData
+    },
+    // 总条数
+    total () {
+      return this.tables.length
+    }
+  },
+  watch: {
+    // 检测表格数据过滤变化，自动跳到第一页
+    tables () {
+      this.currentPage = 1
+    }
+  },
   methods: {
+    handleSizeChange (size) {
+      this.pagesize = size
+    },
+    handleCurrentChange (currentPage) {
+      this.currentPage = currentPage
+    },
     getReminder () {
       let _this = this
       let reminder = _this.ReminderList[0].text
       _this.addCourse.Reminder = reminder
     },
-    filterTag (value, row) {
-      return row.fitnessCourseType === value
-    },
+    // filterTag (value, row) {
+    //   return row.fitnessCourseType === value
+    // },
+    // 新增提示
     addGoods () {
       this.ReminderList.push({ text: this.form.length, type: 'text' })
     },
+    // 删除提示
     removeRowGoods (item, index) {
       // this.goodCourse.splice(index, 1)
       this.index = this.ReminderList.indexOf(item)
@@ -261,7 +318,8 @@ export default {
       let _this = this
       _this.idx = index
       _this.addCourseModel = true
-      const item = _this.courseData[index]
+      _this.fitnessCoursePkid = row.fitnessCoursePkid
+      // const item = _this.courseData[index]
       // let courseTxt = item.fitnessCourseContext
       // if (courseTxt !== null || courseTxt !== '' || courseTxt !== undefined) {
       //   let dataType = item.fitnessCourseContext
@@ -274,11 +332,11 @@ export default {
       //   _this.conTxt = con
       //   _this.ReminderList = _this.conTxt.Reminder
       // }
-      if (item.fitnessCourseContext === '' || item.fitnessCourseContext === 'undefined' || item.fitnessCourseContext === null) {
+      if (row.fitnessCourseContext === '' || row.fitnessCourseContext === 'undefined' || row.fitnessCourseContext === null) {
         _this.ReminderList = [{text: '', type: 'text'}]
         _this.firRem = null
       } else {
-        let dataType = item.fitnessCourseContext
+        let dataType = row.fitnessCourseContext
         let con = null
         if (typeof (dataType) === 'object') {
           con = dataType
@@ -295,7 +353,7 @@ export default {
         trainingEffect: _this.conTxt.trainingEffect,
         SuitablePopulation: _this.conTxt.SuitablePopulation,
         Reminder: _this.firRem,
-        TopimgUrl: item.fitnessCourseCoverimg
+        TopimgUrl: row.fitnessCourseCoverimg
       }
     },
     // 编辑弹窗
@@ -306,6 +364,8 @@ export default {
       _this.editVisible = true
       _this.dailogTitleType = '编辑'
       const item = _this.courseData[index]
+      _this.fitnessCoursePkid = row.fitnessCoursePkid
+      console.log(_this.fitnessCoursePkid)
       _this.form = {
         fitnessCourseName: item.fitnessCourseName,
         fitnessCourseType: item.fitnessCourseType
@@ -316,14 +376,18 @@ export default {
     handleDel (index, row) {
       let _this = this
       _this.idx = index
+      console.log(index)
+      _this.fitnessCoursePkid = row.fitnessCoursePkid
       _this.delVisible = true
     },
+    // 禁用弹窗
     disableStoreShow (index, row) {
       let _this = this
-      let item = _this.courseData[index]
-      let agentDis = item.fitnessCourseDisable
-      let pkid = item.fitnessCoursePkid
-      _this.fitnessCoursePkid = pkid
+      console.log(row)
+      // let item = _this.courseData[index]
+      let agentDis = row.fitnessCourseDisable
+      // let pkid = item.fitnessCoursePkid
+      _this.fitnessCoursePkid = row.fitnessCoursePkid
       if (agentDis === 1) {
         _this.message = '是否禁用该课程？'
         _this.fitnessCourseDisable = 0
@@ -354,8 +418,8 @@ export default {
               _this.courseData = res.data.data
               _this.$message.success('添加成功')
               // _this.getData()
-              _this.addVisible = false
               location.reload()
+              _this.addVisible = false
             } else {
               _this.$message.error(res.data.message)
             }
@@ -368,10 +432,10 @@ export default {
     //  编辑
     editCard () {
       let _this = this
-      let index = _this.idx
-      const item = _this.courseData[index]
+      // let index = _this.idx
+      // const item = _this.courseData[index]
       let editData = {
-        fitnessCoursePkid: parseInt(item.fitnessCoursePkid),
+        fitnessCoursePkid: parseInt(_this.fitnessCoursePkid),
         fitnessCourseName: _this.form.fitnessCourseName,
         fitnessCourseType: parseInt(_this.form.fitnessCourseType)
       }
@@ -395,7 +459,7 @@ export default {
     deleteRow () {
       let _this = this
       let index = _this.idx
-      var pkid = {fitnessCoursePkid: _this.courseData[index].fitnessCoursePkid}
+      var pkid = {fitnessCoursePkid: _this.fitnessCoursePkid}
       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfFitnessCourseOperate/deleteFitnessCourseById', pkid, {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
@@ -422,7 +486,7 @@ export default {
         headers: {'Content-Type': 'application/json'}
       }).then((res) => {
         if (res.data.success === '200') {
-          _this.courseData = res.data.data
+          // _this.courseData = res.data.data
           _this.disableVisible = false
           _this.$message.success('操作成功')
           _this.getData()
@@ -436,8 +500,8 @@ export default {
     //  保存课程内容
     addCourseCon (formName) {
       let _this = this
-      let index = _this.idx
-      let pkid = _this.courseData[index].fitnessCoursePkid
+      // let index = _this.idx
+      let pkid = _this.fitnessCoursePkid
       // let conText = _this.addCourse.fitnessCourseContext
       // let introduce = _this.addCourse.fitnessCourseintroduce
       // let duce = introduce.replace(/<\/?.+?>/g,"")
@@ -446,7 +510,7 @@ export default {
         fitnessCourseintroduce: _this.addCourse.fitnessCourseintroduce,
         trainingEffect: _this.addCourse.trainingEffect,
         SuitablePopulation: _this.addCourse.SuitablePopulation,
-        Reminder: _this.addCourse.ReminderList
+        Reminder: _this.ReminderList
       }
       let courseData = {
         fitnessCourseContext: courseLists,
@@ -478,6 +542,18 @@ export default {
 </script>
 
 <style scoped>
+  .demo-table-expand {
+    font-size: 0;
+  }
+  .demo-table-expand label {
+    width: 90px;
+    color: #99a9bf;
+  }
+  .demo-table-expand .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 50%;
+  }
   .addBtn{
     background-color: #d71718;
     color: #fff;

@@ -5,7 +5,7 @@
         <el-button class="addBtn" @click="addModelOpen()">创建优惠券</el-button>
       </el-row>
     </div>
-    <div class="container">
+    <div class="containers">
       <el-table :data="couponData" border style="width: 100%">
         <el-table-column prop="couponPkid" label="pkid" align="center"></el-table-column>
         <el-table-column prop="agentPkid" label="卡名称" align="center"></el-table-column>

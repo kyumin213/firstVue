@@ -5,7 +5,7 @@
           <el-button class="addBtn" @click="addModelOpen()">创建储值卡</el-button>
         </el-row>
       </div>
-      <div class="container">
+      <div class="containers">
         <el-table :data="cardReleaseData" border style="width: 100%">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="cardPkid" label="pkid" align="center" width="60"></el-table-column>

@@ -5,8 +5,12 @@
           <el-button class="addBtn" @click="syncDevice">同步设备</el-button>
         </el-row>
       </div>
-      <div class="container">
-        <el-table :data="deviceData" border style="width: 100%">
+      <div class="containers">
+        <div style="display: inline-block;font-size: 14px"> 查找：</div>
+        <el-input v-model="search" style="display: inline-block;width: 300px;margin-bottom: 20px"
+                  placeholder="请输入查找内容">
+        </el-input>
+        <el-table :data="tables.slice((currentPage - 1) * pagesize, currentPage * pagesize)" ref="deviceData" border style="width: 100%" stripe>
           <!--<el-table-column type="selection" width="55"></el-table-column>-->
           <el-table-column prop="devicePkid" label="pkid" align="center"></el-table-column>
           <el-table-column prop="branchName" label="商户" align="center"></el-table-column>
@@ -24,6 +28,17 @@
             </template>
           </el-table-column>
         </el-table>
+        <div class="paginations center">
+          <el-pagination background
+                         @size-change="handleSizeChange"
+                         @current-change="handleCurrentChange"
+                         :current-page="currentPage"
+                         :page-sizes="[5, 10, 20, 40]"
+                         :page-size="pagesize"
+                         layout="total, sizes, prev, pager, next, jumper"
+                         :total="total">
+          </el-pagination>
+        </div>
       </div>
       <!--使用情况弹窗-->
       <el-dialog :title="dailogTitleType"  width="90%" :visible.sync="addVisible" center>
@@ -102,6 +117,9 @@ export default {
   name: 'courseList',
   data () {
     return {
+      currentPage: 1,
+      pagesize: 5,
+      search: '',
       deviceData: [],
       LockerInfoData: [],
       allUserData: [],
@@ -136,7 +154,37 @@ export default {
     this.getData()
     this.getAllUser()
   },
+  computed: {
+    // 模糊搜索
+    tables () {
+      const search = this.search
+      if (search) {
+        return this.deviceData.filter(data => {
+          return Object.keys(data).some(key => {
+            return String(data[key]).toLowerCase().indexOf(search) > -1
+          })
+        })
+      }
+      return this.deviceData
+    },
+    // 总条数
+    total () {
+      return this.tables.length
+    }
+  },
+  watch: {
+    // 检测表格数据过滤变化，自动跳到第一页
+    tables () {
+      this.currentPage = 1
+    }
+  },
   methods: {
+    handleSizeChange (size) {
+      this.pagesize = size
+    },
+    handleCurrentChange (currentPage) {
+      this.currentPage = currentPage
+    },
     // 设备列表
     getData () {
       let _this = this

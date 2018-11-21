@@ -5,31 +5,30 @@
         <el-button class="addBtn" @click="addRole()">创建角色</el-button>
       </el-row>
     </div>
-    <div v-if="roles!==''">
-      <el-table :data="roles" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column  prop="userRolePkid" label="pkid" width="100" align="center">
-        </el-table-column>
-        <el-table-column prop="userRolePkcode" label="code" align="center"></el-table-column>
-        <el-table-column  prop="userRoleCtime" label="日期" sortable align="center">
-        </el-table-column>
-        <el-table-column  prop="userRoleName" label="角色" align="center">
-        </el-table-column>
-        <el-table-column  prop="userRoleDisable" label="是否禁用" align="center" :formatter="disableTxt">
-        </el-table-column>
-        <el-table-column label="操作" width="180" align="center">
-          <template slot-scope="scope">
-            <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div class="containers">
+        <el-table :data="roles" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="55"></el-table-column>
+          <el-table-column  prop="userRolePkid" label="pkid" width="100" align="center">
+          </el-table-column>
+          <el-table-column prop="userRolePkcode" label="code" align="center"></el-table-column>
+          <el-table-column  prop="userRoleCtime" label="日期" sortable align="center">
+          </el-table-column>
+          <el-table-column  prop="userRoleName" label="角色" align="center">
+          </el-table-column>
+          <el-table-column  prop="userRoleDisable" label="是否禁用" align="center" :formatter="disableTxt">
+          </el-table-column>
+          <el-table-column label="操作" width="180" align="center">
+            <template slot-scope="scope">
+              <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+              <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
       <!--<div class="pagination">-->
         <!--<el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">-->
         <!--</el-pagination>-->
       <!--</div>-->
-    </div>
-    <div v-else style="text-align: center">加载中...</div>
     <!--新增-->
     <el-dialog :title="dailogTitleType" :visible.sync="addVisible" width="40%" :close-on-click-modal="false">
       <el-form ref="form" :model="form" label-width="100px">

@@ -1,11 +1,11 @@
 <template>
-    <div class="table">
+    <div>
       <div class="block">
         <el-row>
           <el-button class="addBtn" @click="addModelOpen()">创建课程</el-button>
         </el-row>
       </div>
-      <div class="container">
+      <div class="containers">
         <span class="txt">课程名称</span>
         <el-input v-model="course_name" placeholder="请输入课程名称" class="handle-input mr10"></el-input>
         <span class="txt">教练名称</span>
@@ -35,9 +35,9 @@
           <el-table-column prop="courseReleaseStatus" label="发布状态" align="center" :formatter="disableTxt"></el-table-column>
           <el-table-column prop="courseReleasePut" label="上下架状态" align="center" :formatter="putTxt"></el-table-column>
           <el-table-column prop="courseReleaseIsplan" label="排课状态" align="center" :formatter="planTxt"></el-table-column>
-          <el-table-column label="操作" align="center" width="250">
+          <el-table-column label="操作" align="center" width="200">
             <template slot-scope="scope">
-              <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+              <!--<el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>-->
               <el-button size="small" type="info" @click="disableStoreShow(scope.$index, scope.row)"
                          v-if="scope.row.courseReleaseStatus===1">取消发布
               </el-button>
@@ -56,8 +56,8 @@
             </template>
           </el-table-column>
         </el-table>
-        <div class="pagination center" v-if="this.pages>1">
-          <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"   :page-size="pageSize" layout="prev, pager, next" :total="total">
+        <div class="paginations center" v-if="this.pages>1">
+          <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"   :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
           </el-pagination>
         </div>
       </div>
@@ -69,7 +69,7 @@
           </el-form-item>
           <el-form-item label="课程ID" prop="fitnessCoursePkid">
             <!--<el-input v-model="courseForm.courseReleaseName"></el-input>-->
-            <el-select placeholder="请选择" v-model="courseForm.fitnessCoursePkid" @change="getCourse" filterable style="width: 100%">
+            <el-select placeholder="请选择" v-model="courseForm.fitnessCourseName" @change="getCourse" filterable style="width: 100%">
               <el-option v-for="(item, index) in CourseReleaseList" :key="index" :label="item.fitnessCourseName" :value="index"></el-option>
             </el-select>
           </el-form-item>
@@ -99,7 +99,7 @@
           </el-form-item>
           <el-form-item label="人数" prop="courseReleaseMaxNum">
             <div>
-              <el-input  v-model="courseForm.courseReleaseMaxNum" type="number" @change="value=value.replace(/[^\d]/g,'')">
+              <el-input  v-model="courseForm.courseReleaseMaxNum" type="number">
                 <template slot="append">人</template>
               </el-input>
             </div>
@@ -1000,6 +1000,8 @@ export default {
           _this.courseReleaseData = res.data.data
           _this.$message.success('操作成功')
           _this.getData()
+          // _this.currentPage = 1
+          _this.handleCurrentChange(_this.currentPage)
           _this.disableVisible = false
         } else {
           _this.$message.error('无操作权限')
@@ -1031,7 +1033,8 @@ export default {
           _this.$message.success('操作成功')
           _this.getData()
           _this.planVisible = false
-          location.reload()
+          _this.handleCurrentChange(_this.currentPage)
+          // location.reload()
         } else {
           _this.$message.error('无操作权限')
         }

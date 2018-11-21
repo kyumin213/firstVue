@@ -1,11 +1,11 @@
 <template>
-    <div class="table">
+    <div>
       <div class="block">
         <el-row>
           <el-button class="addBtn" @click="addModelOpen()">创建员工</el-button>
         </el-row>
       </div>
-      <div class="container">
+      <div class="containers">
         <span class="txt">手机号</span>
         <el-input v-model="phone" placeholder="请输入手机号" class="handle-input" style="margin-right: 40px"></el-input>
         <span class="txt">姓名</span>
@@ -40,7 +40,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <div class="pagination center" v-if="this.total >= this.pages">
+        <div class="paginations center" v-if="this.total >= this.pages">
           <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"   :page-size="pageSize" layout="prev, pager, next" :total="total">
           </el-pagination>
         </div>

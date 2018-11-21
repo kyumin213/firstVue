@@ -91,7 +91,7 @@ const cardNameNum = (rule, value, callback) => {
 }
 // 课程发布信息数字长度验证
 const courseLength = (rule, value, callback) => {
-  if (value < 0.01) {
+  if (value < 0) {
     callback(new Error('值不能小于1'))
   } else if (value.length > 8) {
     callback(new Error('不能大于5位数'))

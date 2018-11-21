@@ -61,7 +61,7 @@
           <el-button @click="toLogin" type="primary">跳转登录</el-button>
           <div>内容完善中</div>
           <!--<iframe src='../../../static/index1.html' width="1200" height="300" frameborder="0" scrolling="auto" v-show="hashBd"></iframe>-->
-          <iframe src='../../../static/index1.html' width="103%" height="400" frameborder="0" scrolling="auto" id="firSrc"></iframe>
+          <!--<iframe src='' width="103%" height="400" frameborder="0" scrolling="auto" id="firSrc"></iframe>-->
           <!--<dataShow></dataShow>-->
           <!--<div slot="header" class="clearfix">-->
             <!--<span>待办事项</span>-->
@@ -132,12 +132,12 @@ export default {
     }
 
   },
-  mounted () {
-    let fir = document.getElementById('firSrc')
-    let token = sessionStorage.getItem('token')
-    fir.src = '../../../static/index1.html?token=' + token
-    // console.log(fir.src)
-  },
+  // mounted () {
+  //   let fir = document.getElementById('firSrc')
+  //   let token = sessionStorage.getItem('token')
+  //   fir.src = '../../../static/index1.html?token=' + token
+  //   // console.log(fir.src)
+  // },
   created () {
     bus.$on('collapse', msg => {
       this.collapse = msg

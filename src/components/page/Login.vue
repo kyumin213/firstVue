@@ -137,12 +137,13 @@ export default {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 300px;
-    height: 160px;
-    margin: -150px 0 0 -190px;
+    width: 340px;
+    height: 200px;
+    margin: -150px 0 0 -170px;
     padding: 40px;
     border-radius: 5px;
     background: #fff;
+    box-sizing: border-box;
   }
 
   .login-btn {

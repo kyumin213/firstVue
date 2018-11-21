@@ -48,6 +48,9 @@ export default {
 </script>
 
 <style>
+  .wrapper{
+    padding: 0;
+  }
   .el-container {
     height: 100%;
   }

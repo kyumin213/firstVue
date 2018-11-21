@@ -1,11 +1,11 @@
 <template>
-  <div class="table">
+  <div>
     <div class="block">
       <el-row>
         <el-button class="addBtn" @click="addModelOpen()">创建门店</el-button>
       </el-row>
     </div>
-    <div class="container">
+    <div class="containers">
       <!--<div class="handle-box">-->
         <!--<el-button type="primary" icon="delete" class="handle-del mr10" @click="delAll">批量删除</el-button>-->
         <!--<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>-->
@@ -13,6 +13,34 @@
       <!--</div>-->
       <el-table :data="storeList" border style="width: 100%"
                 @selection-change="handleSelectionChange">
+        <el-table-column type="expand">
+          <template slot-scope="props">
+            <el-form label-position="left" inline class="demo-table-expand">
+              <el-form-item label="门店名称">
+                <span>{{ props.row.storeName }}</span>
+              </el-form-item>
+              <el-form-item label="门店昵称">
+                <span>{{ props.row.storeNikename }}</span>
+              </el-form-item>
+              <el-form-item label="联系人">
+                <span>{{ props.row.storeLinkman }}</span>
+              </el-form-item>
+              <el-form-item label="联系电话">
+                <span>{{ props.row.storeLinkmanTel }}</span>
+              </el-form-item>
+              <el-form-item label="省份">
+                <span>{{ props.row.storeProvince }}</span>
+              </el-form-item>
+              <el-form-item label="城市">
+                <span>{{ props.row.storeCity }}</span>
+              </el-form-item>
+              <el-form-item label="详细地址">
+                <span>{{ props.row.storeAddress }}</span>
+              </el-form-item>
+
+            </el-form>
+          </template>
+        </el-table-column>
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="storePkid" align="center" label="pkid" width="80">
         </el-table-column>
@@ -591,6 +619,18 @@ export default {
 </script>
 
 <style scoped>
+  .demo-table-expand {
+    font-size: 0;
+  }
+  .demo-table-expand label {
+    width: 90px;
+    color: #99a9bf;
+  }
+  .demo-table-expand .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 50%;
+  }
   .handle-box {
     margin-bottom: 20px;
   }

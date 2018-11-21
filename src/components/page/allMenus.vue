@@ -5,7 +5,7 @@
       <el-button class="addBtn" @click="addMenu()">创建菜单</el-button>
     </el-row>
   </div>
-  <div>
+  <div class="containers">
     <el-table :data="menuData" border style="width: 100%"  @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="userAuthPkid" label="ID" width="55" align="center"></el-table-column>
@@ -109,6 +109,7 @@ export default {
   created () {
     this.getData()
   },
+
   methods: {
     //  禁用转文字
     disableTxt (val) {

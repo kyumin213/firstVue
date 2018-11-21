@@ -7,7 +7,7 @@
       <div class="handle-box">
       </div>
     </div>
-    <div class="container">
+    <div class="containers">
       <span class="txt">手机号</span>
       <el-input v-model="phone" placeholder="请输入手机号" class="handle-input mr10"></el-input>
       <span class="txt">课程名称</span>
@@ -42,8 +42,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination center" v-if="this.pages>1">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"   :page-size="pageSize" layout="prev, pager, next" :total="total">
+      <div class="paginations center" v-if="this.pages>1">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"   :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
       </div>
     </div>
@@ -537,6 +537,9 @@ export default {
 </script>
 
 <style scoped>
+  .container{
+    width: 100%;
+  }
   .addBtn {
     background-color: #d71718;
     color: #fff;
