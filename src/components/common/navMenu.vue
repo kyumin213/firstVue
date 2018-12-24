@@ -61,7 +61,7 @@
         <template slot="title">{{userName}}</template>
         <el-menu-item index="login" @click="loginOut">退出</el-menu-item>
       </el-submenu>
-      <el-menu-item index="test"><i class="el-icon-tickets"></i>测试列表</el-menu-item>
+      <!--<el-menu-item index="test"><i class="el-icon-tickets"></i>测试列表</el-menu-item>-->
     </el-menu>
   </div>
 </template>
@@ -76,101 +76,101 @@ export default {
       storeListShow: false,
       adminListShow: false,
       userName: '',
-      menuData: [],
-      items: [
-        {
-          icon: 'el-icon-setting',
-          index: 'dashboard',
-          title: '首页'
-        },
-        {
-          icon: 'el-icon-tickets',
-          index: 'agentList',
-          title: '商户列表'
-        },
-        {
-          icon: 'el-icon-tickets',
-          index: 'storeList',
-          title: '门店列表'
-        },
-        // {
-        //   icon: 'el-icon-message',
-        //   index: 'tabs',
-        //   title: 'tab选项卡'
-        // },
-        {
-          icon: 'el-icon-date',
-          index: '3',
-          title: '商家设置',
-          subs: [
-            {
-              index: 'cardList',
-              title: '卡列表'
-            },
-            {
-              index: 'courseList',
-              title: '课程列表'
-            }
-          ]
-        },
-        {
-          icon: 'el-icon-warning',
-          index: '4',
-          title: '设置',
-          subs: [
-            {
-              index: 'role',
-              title: '角色设置'
-            },
-            {
-              index: 'auth',
-              title: '全部菜单'
-            }
-          ]
-        },
-        {
-          icon: 'el-icon-tickets',
-          index: '5',
-          title: '门店设置',
-          subs: [
-            {
-              index: 'memberList',
-              title: '会员列表'
-            },
-            {
-              index: 'coachList',
-              title: '教练列表'
-            },
-            {
-              index: 'staffList',
-              title: '员工列表'
-            }
-            // {
-            //   index: 'cardReleaseList',
-            //   title: '储值卡'
-            // },
-            // {
-            //   index: 'courseReleaseList',
-            //   title: '课程发布'
-            // }
-          ]
-        },
-        {
-          icon: 'el-icon-tickets',
-          index: '6',
-          title: '全部订单',
-          subs: [
-            {
-              index: 'cardOrderList',
-              title: '充值卡列表'
-            },
-            {
-              index: 'courseOrderList',
-              title: '课程订单列表'
-            }
-          ]
-        }
-      ]
+      menuData: []
+      // items: [
+      //   {
+      //     icon: 'el-icon-setting',
+      //     index: 'dashboard',
+      //     title: '首页'
+      //   },
+      //   {
+      //     icon: 'el-icon-tickets',
+      //     index: 'agentList',
+      //     title: '商户列表'
+      //   },
+      //   {
+      //     icon: 'el-icon-tickets',
+      //     index: 'storeList',
+      //     title: '门店列表'
+      //   },
+      //   // {
+      //   //   icon: 'el-icon-message',
+      //   //   index: 'tabs',
+      //   //   title: 'tab选项卡'
+      //   // },
+      //   {
+      //     icon: 'el-icon-date',
+      //     index: '3',
+      //     title: '商家设置',
+      //     subs: [
+      //       {
+      //         index: 'cardList',
+      //         title: '卡列表'
+      //       },
+      //       {
+      //         index: 'courseList',
+      //         title: '课程列表'
+      //       }
+      //     ]
+      //   },
+      //   {
+      //     icon: 'el-icon-warning',
+      //     index: '4',
+      //     title: '设置',
+      //     subs: [
+      //       {
+      //         index: 'role',
+      //         title: '角色设置'
+      //       },
+      //       {
+      //         index: 'auth',
+      //         title: '全部菜单'
+      //       }
+      //     ]
+      //   },
+      //   {
+      //     icon: 'el-icon-tickets',
+      //     index: '5',
+      //     title: '门店设置',
+      //     subs: [
+      //       {
+      //         index: 'memberList',
+      //         title: '会员列表'
+      //       },
+      //       {
+      //         index: 'coachList',
+      //         title: '教练列表'
+      //       },
+      //       {
+      //         index: 'staffList',
+      //         title: '员工列表'
+      //       }
+      //       // {
+      //       //   index: 'cardReleaseList',
+      //       //   title: '储值卡'
+      //       // },
+      //       // {
+      //       //   index: 'courseReleaseList',
+      //       //   title: '课程发布'
+      //       // }
+      //     ]
+      //   },
+      //   {
+      //     icon: 'el-icon-tickets',
+      //     index: '6',
+      //     title: '全部订单',
+      //     subs: [
+      //       {
+      //         index: 'cardOrderList',
+      //         title: '充值卡列表'
+      //       },
+      //       {
+      //         index: 'courseOrderList',
+      //         title: '课程订单列表'
+      //       }
+      //     ]
+      //   }
+      // ]
     }
   },
 

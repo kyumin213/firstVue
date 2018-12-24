@@ -14,7 +14,7 @@
         <el-button type="primary" icon="search" @click="search">搜索</el-button>
         <el-table :data="memberList" border style="width: 100%"
                   @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55"></el-table-column>
+          <!--<el-table-column type="selection" width="55"></el-table-column>-->
           <el-table-column prop="storeMemberPkid" align="center" label="pkid" width="80">
           </el-table-column>
           <el-table-column prop="storeMemberCtime" align="center" label="创建时间" sortable>
@@ -28,7 +28,7 @@
           <el-table-column prop="storeMemberPhone" align="center" label="手机号"></el-table-column>
           <el-table-column prop="storeMemberType" align="center" label="类型" :formatter="memberTypeTxt"></el-table-column>
           <el-table-column prop="storeMemberDisable" align="center" label="是否禁用" :formatter="disableTxt"></el-table-column>
-          <el-table-column label="操作" width="200" align="center">
+          <el-table-column label="操作" width="280" align="center">
             <template slot-scope="scope">
               <el-button size="small" @click="handleEdit(scope.$index, scope.row)" v-if="scope.row.storeMemberDisable===1">编辑
               </el-button>
@@ -37,6 +37,9 @@
               </el-button>
               <el-button size="small" type="primary" v-else-if="scope.row.storeMemberDisable===0"
                          @click="disableStoreShow(scope.$index, scope.row)">启用
+              </el-button>
+              <el-button size="small" type="danger"
+                         @click="deleteStoreShow(scope.$index, scope.row)">删除
               </el-button>
             </template>
           </el-table-column>
@@ -90,13 +93,21 @@
       </span>
     </el-dialog>
     <!--禁用提示框-->
-    <el-dialog title="温馨提示" :visible.sync="disableVisible" width="300px" center>
+    <el-dialog title="温馨提示" :visible.sync="disableVisible" width="340px" center>
       <div class="del-dialog-cnt">{{message}}</div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="disableVisible=false">取消</el-button>
         <el-button type="primary" @click="disableStore">确定</el-button>
       </span>
     </el-dialog>
+      <!--删除弹窗-->
+      <el-dialog title="温馨提示" :visible.sync="deleVisible" width="340px" center>
+        <div class="del-dialog-cnt">是否确定删除该会员？</div>
+        <span slot="footer" class="dialog-footer">
+        <el-button @click="deleVisible=false">取消</el-button>
+        <el-button type="primary" @click="deleStore">确定</el-button>
+      </span>
+      </el-dialog>
   </div>
 </template>
 
@@ -106,6 +117,7 @@ export default {
   name: 'memberList',
    data (){
       return {
+        delstoreMemberPhone:null,
         currentPage: 1,
         pageSize: 10,
         total: null,
@@ -117,8 +129,8 @@ export default {
         message: '',
         addVisible: false,
         editVisible: false,
-        delVisible: false,
         disableVisible: false,
+        deleVisible: false,
         is_search: false,
         dailogTitleType: '',
         tableDataEnd: [],
@@ -307,6 +319,14 @@ export default {
         }
         this.disableVisible = true
       },
+      //删除弹窗
+     deleteStoreShow(index, row) {
+       let _this = this
+       let item = _this.memberList[index]
+       let agentDis = item.storeMemberPhone
+       _this.delstoreMemberPhone = agentDis
+       _this.deleVisible = true
+     },
 
       //  创建弹窗
     addModelOpen() {
@@ -336,6 +356,24 @@ export default {
           storeMemberCtime: item.storeMemberCtime
         }
       },
+      // 确定删除
+     deleStore(){
+        let _this = this
+       console.log(_this.delstoreMemberPhone)
+       let tel = {
+          phone:_this.delstoreMemberPhone
+       }
+       _this.axios.post(this.GLOBAL.BASE_URL + '/agentOfMemberOperate/deleteMember', tel, {
+         headers: {'Content-Type': 'application/json'}
+       }).then((res) => {
+         _this.memberList = res.data.data
+         _this.$message.success('操作成功')
+         _this.getData()
+         _this.deleVisible = false
+       }).catch((error) => {
+         console.log(error)
+       })
+     },
       //  添加门店
     addStore(formName) {
         let _this = this

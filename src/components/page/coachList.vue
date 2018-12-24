@@ -111,35 +111,35 @@
         <el-form-item label="教练简介">
         <el-input type="textarea" v-model="information.profiles"></el-input>
       </el-form-item>
-        <el-form-item label="擅长课程">
-          <span style="color: #d71718">最多10个</span>
-        </el-form-item>
-        <div v-for="(item, index) in goodCourse" :key="item.key">
-          <el-form-item label="课程" >
-            <!--<el-input type="textarea" v-model="information.goodCourse"></el-input>-->
-            <!--<el-col :span="2"> <span>课程</span></el-col>-->
-            <el-col :span="2"> <span>{{index+1}}</span></el-col>
-            <el-col :span="16"><el-input type="text" v-model="item.goods"></el-input></el-col>
-            <el-button type="danger" size="small" style="margin-left: 5px" @click="removeRowGoods(item, index)">删除</el-button>
-          </el-form-item>
-        </div>
-          <el-form-item >
-            <el-button type="primary" size="small" @click="addGoods()" v-if="addBtn">新增擅长课程</el-button>
-          </el-form-item>
-       <el-form-item label="认证证书">
-         <span style="color: #d71718">最多10个</span>
-       </el-form-item>
-        <div v-for="(item, index) in certificate" :key="item.key" style="margin-left: 0">
-          <el-form-item  label="证书" >
-            <!--<el-col :span="2"> <span>证书</span></el-col>-->
-            <el-col :span="2"> <span>{{index+1}}</span></el-col>
-            <el-col :span="16"><el-input type="text" v-model="item.text"></el-input></el-col>
-            <el-button type="danger" size="small" style="margin-left: 5px" @click="removeRow(item, index)">删除</el-button>
-          </el-form-item>
-        </div>
-        <el-form-item>
-          <el-button type="primary" size="small" @click="add" v-if="addZsBtn">新增证书</el-button>
-        </el-form-item>
+        <!--<el-form-item label="擅长课程">-->
+          <!--<span style="color: #d71718">最多10个</span>-->
+        <!--</el-form-item>-->
+        <!--<div v-for="(item, index) in goodCourse" :key="item.key">-->
+          <!--<el-form-item label="课程" >-->
+            <!--&lt;!&ndash;<el-input type="textarea" v-model="information.goodCourse"></el-input>&ndash;&gt;-->
+            <!--&lt;!&ndash;<el-col :span="2"> <span>课程</span></el-col>&ndash;&gt;-->
+            <!--<el-col :span="2"> <span>{{index+1}}</span></el-col>-->
+            <!--<el-col :span="16"><el-input type="text" v-model="item.goods"></el-input></el-col>-->
+            <!--<el-button type="danger" size="small" style="margin-left: 5px" @click="removeRowGoods(item, index)">删除</el-button>-->
+          <!--</el-form-item>-->
+        <!--</div>-->
+          <!--<el-form-item >-->
+            <!--<el-button type="primary" size="small" @click="addGoods()" v-if="addBtn">新增擅长课程</el-button>-->
+          <!--</el-form-item>-->
+       <!--<el-form-item label="认证证书">-->
+         <!--<span style="color: #d71718">最多10个</span>-->
+       <!--</el-form-item>-->
+        <!--<div v-for="(item, index) in certificate" :key="item.key" style="margin-left: 0">-->
+          <!--<el-form-item  label="证书" >-->
+            <!--&lt;!&ndash;<el-col :span="2"> <span>证书</span></el-col>&ndash;&gt;-->
+            <!--<el-col :span="2"> <span>{{index+1}}</span></el-col>-->
+            <!--<el-col :span="16"><el-input type="text" v-model="item.text"></el-input></el-col>-->
+            <!--<el-button type="danger" size="small" style="margin-left: 5px" @click="removeRow(item, index)">删除</el-button>-->
+          <!--</el-form-item>-->
+        <!--</div>-->
+        <!--<el-form-item>-->
+          <!--<el-button type="primary" size="small" @click="add" v-if="addZsBtn">新增证书</el-button>-->
+        <!--</el-form-item>-->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="perfactVisible=false">取消</el-button>
@@ -528,12 +528,12 @@ export default {
       let index = _this.idx
       let pkid = _this.coachList[index].storeCoachPkid
       // let conText = _this.addCourse.fitnessCourseContext
-      let coachLists = {
-        goodCourse: _this.goodCourse,
-        certificateList: _this.certificate
-      }
+      // let coachLists = {
+      //   goodCourse: _this.goodCourse,
+      //   certificateList: _this.certificate
+      // }
       let courseData = {
-        storeCoachIntroduce: coachLists,
+        storeCoachIntroduce: null,
         storeCoachPkid: pkid,
         storeCoachSynopsis: _this.information.profiles,
         storeCoachHeadimg: _this.information.storeCoachHeadimg,

@@ -13,7 +13,9 @@
         <el-table :data="tables.slice((currentPage - 1) * pagesize, currentPage * pagesize)" ref="deviceData" border style="width: 100%" stripe>
           <!--<el-table-column type="selection" width="55"></el-table-column>-->
           <el-table-column prop="devicePkid" label="pkid" align="center"></el-table-column>
+          <el-table-column prop="code" label="code" align="center"></el-table-column>
           <el-table-column prop="branchName" label="商户" align="center"></el-table-column>
+          <el-table-column prop="storePkid" label="门店ID" align="center"></el-table-column>
           <el-table-column prop="deviceTypeId" label="deviceTypeId" align="center"></el-table-column>
           <el-table-column prop="deviceVersion" label="deviceVersion" align="center"></el-table-column>
           <el-table-column prop="merchantName" label="设备名称" align="center"></el-table-column>
@@ -45,7 +47,6 @@
         <el-table :data="LockerInfoData" border style="width: 100%">
           <!--<el-table-column type="selection" width="55"></el-table-column>-->
           <el-table-column prop="cabinetNo" label="cabinetNo" align="center"></el-table-column>
-          <el-table-column prop="cabinetNo" label="cabinetNo" align="center"></el-table-column>
           <el-table-column prop="deviceId" label="deviceId" align="center"></el-table-column>
           <el-table-column prop="id" label="id" align="center"></el-table-column>
           <el-table-column prop="lineNo" label="lineNo" align="center"></el-table-column>
@@ -64,16 +65,16 @@
           </el-form-item>
           <el-form-item label="柜号">
             <el-select placeholder="请选择" filterable v-model="form.number">
-              <el-option v-for="(item, index) in LockerInfoData" :key="index" :label="item.cabinetNo" :value="index"></el-option>
+              <el-option v-for="(item, index) in LockerInfoData" :key="index" :label="item.cabinetNo" :value="item.cabinetNo"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="开始时间">
-          <el-date-picker type="datetime" placeholder="选择日期" v-model="form.begtime" value-format="yyyy-MM-dd HH-mm-ss"
+          <el-date-picker type="datetime" placeholder="选择日期" v-model="form.begtime" value-format="yyyy-MM-dd HH:mm:ss"
                           style="width: 100%;" :picker-options="pickerOptions0">
           </el-date-picker>
         </el-form-item>
           <el-form-item label="结束时间">
-            <el-date-picker type="datetime" placeholder="选择日期" v-model="form.endtime" value-format="yyyy-MM-dd HH-mm-ss"
+            <el-date-picker type="datetime" placeholder="选择日期" v-model="form.endtime" value-format="yyyy-MM-dd HH:mm:ss"
                             style="width: 100%;" :picker-options="pickerEndDate">
             </el-date-picker>
           </el-form-item>
@@ -254,8 +255,9 @@ export default {
           if (beginDateVal) {
             return (
               time.getTime() < Date.now() ||
-              time.getTime() >
-              new Date(beginDateVal).getTime()
+              // time.getTime() >
+              // new Date(beginDateVal).getTime()
+              time.getTime() < beginDateVal
               // new Date(beginDateVal).getTime() + 1 * 24 * 60 * 60 * 1000
             )
           } else {
